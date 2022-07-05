@@ -1,0 +1,33 @@
+version: "3.9"
+services:
+
+  rabbitmq:
+    image: rabbitmq:management
+    environment:
+      #      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE}
+      RABBITMQ_DEFAULT_USER: rabbitmq
+      RABBITMQ_DEFAULT_PASS: rabbitmq
+      RABBITMQ_DEFAULT_VHOST: demo
+
+  database:
+    image: postgres:11.5
+    environment:
+      POSTGRES_PASSWORD: changeit
+      POSTGRES_USER: pguser
+      POSTGRES_DB: test
+
+  vegetables:
+    image: quarkus-observability-demo/vegetables
+    build:
+      context: ../quarkus-observability-demo-rabbitmq
+      dockerfile: Dockerfile.jvm
+      # Set mode MODE=dev to build with local target resources (triggers target=vegetablesdev) - MODE=dev observability build
+      target: vegetables${MODE:-}
+#  superheroes:
+#    image: service-mesh-presentation/superheroes
+#    build:
+#      context: ../apps
+#      dockerfile: Dockerfile
+#      # Set mode MODE=dev to build with local target resources (triggers target=superheroesdev) - MODE=dev observability build
+#      target: superheroes${MODE:-}
+
