@@ -19,7 +19,7 @@ services:
   vegetables:
     image: quarkus-observability-demo/vegetables
     build:
-      context: ../quarkus-observability-demo-rabbitmq
+      context: ../../quarkus-observability-demo-rabbitmq
       dockerfile: Dockerfile.jvm
       # Set mode MODE=dev to build with local target resources (triggers target=vegetablesdev) - MODE=dev observability build
       target: vegetables${MODE:-}

@@ -1,4 +1,4 @@
-package com.brunobat.model;
+package com.brunobat.rest.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

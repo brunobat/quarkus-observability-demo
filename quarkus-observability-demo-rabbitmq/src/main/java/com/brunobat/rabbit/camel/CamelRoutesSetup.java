@@ -1,6 +1,6 @@
 
 
-package com.brunobat.camel;
+package com.brunobat.rabbit.camel;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;

@@ -1,10 +1,9 @@
 
-package com.brunobat.camel;
+package com.brunobat.rabbit.camel;
 
 
-import com.brunobat.data.LegumeItem;
+import com.brunobat.rabbit.data.LegumeItem;
 import io.opentelemetry.api.OpenTelemetry;
-import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.api.trace.TracerProvider;
 import io.opentelemetry.extension.annotations.WithSpan;
 import lombok.extern.slf4j.Slf4j;
@@ -15,8 +14,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;

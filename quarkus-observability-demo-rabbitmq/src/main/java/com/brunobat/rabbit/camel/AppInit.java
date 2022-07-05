@@ -1,6 +1,6 @@
 
 
-package com.brunobat.camel;
+package com.brunobat.rabbit.camel;
 
 import io.quarkus.runtime.StartupEvent;
 import org.slf4j.Logger;

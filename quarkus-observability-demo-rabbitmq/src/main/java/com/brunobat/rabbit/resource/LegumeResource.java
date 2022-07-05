@@ -1,10 +1,10 @@
-package com.brunobat.resource;
+package com.brunobat.rabbit.resource;
 
 
-import com.brunobat.camel.MessageSender;
-import com.brunobat.data.LegumeItem;
-import com.brunobat.data.LegumeNew;
-import com.brunobat.model.Legume;
+import com.brunobat.rabbit.camel.MessageSender;
+import com.brunobat.rabbit.data.LegumeItem;
+import com.brunobat.rabbit.data.LegumeNew;
+import com.brunobat.rabbit.model.Legume;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -17,13 +17,12 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 
 @ApplicationScoped
-public class LegumeResource {
+public class LegumeResource implements LegumeApi{
 
     @Inject
     EntityManager manager;

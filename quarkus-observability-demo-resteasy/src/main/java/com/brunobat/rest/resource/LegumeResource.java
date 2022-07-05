@@ -1,9 +1,10 @@
-package com.brunobat.resource;
+package com.brunobat.rest.resource;
 
 
-import com.brunobat.data.LegumeItem;
-import com.brunobat.data.LegumeNew;
-import com.brunobat.model.Legume;
+import com.brunobat.rest.data.LegumeItem;
+import com.brunobat.rest.data.LegumeNew;
+import com.brunobat.rest.model.Legume;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -16,13 +17,13 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 
 @ApplicationScoped
-public class LegumeResource {
+@Slf4j
+public class LegumeResource implements LegumeApi{
 
     @Inject
     EntityManager manager;
@@ -60,7 +61,7 @@ public class LegumeResource {
     //    @Fallback(fallbackMethod = "fallback")
 //    @Timeout(500)
     public List<LegumeItem> list() {
-
+        log.info("someone asked for a list");
         return manager.createQuery("SELECT l FROM Legume l").getResultList();
     }
 

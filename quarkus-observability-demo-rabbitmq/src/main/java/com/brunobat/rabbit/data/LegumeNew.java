@@ -1,4 +1,4 @@
-package com.brunobat.data;
+package com.brunobat.rabbit.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

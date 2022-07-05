@@ -1,4 +1,4 @@
-package com.brunobat;
+package com.brunobat.rest;
 
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;

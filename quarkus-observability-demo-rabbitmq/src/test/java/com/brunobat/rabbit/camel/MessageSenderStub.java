@@ -1,7 +1,7 @@
 
-package com.brunobat.camel;
+package com.brunobat.rabbit.camel;
 
-import com.brunobat.data.LegumeItem;
+import com.brunobat.rabbit.data.LegumeItem;
 
 import javax.annotation.Priority;
 import javax.enterprise.inject.Alternative;

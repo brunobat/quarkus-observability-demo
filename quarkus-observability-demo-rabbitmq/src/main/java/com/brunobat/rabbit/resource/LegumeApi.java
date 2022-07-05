@@ -1,7 +1,7 @@
-package com.brunobat.resource;
+package com.brunobat.rabbit.resource;
 
-import com.brunobat.data.LegumeItem;
-import com.brunobat.data.LegumeNew;
+import com.brunobat.rabbit.data.LegumeItem;
+import com.brunobat.rabbit.data.LegumeNew;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
