@@ -13,6 +13,7 @@
         <module>quarkus-observability-demo-resteasy</module>
 <!--        <module>quarkus-observability-demo-rabbitmq</module>-->
         <module>quarkus-observability-demo-activemq</module>
+        <module>quarkus-observability-demo-micrometer</module>
     </modules>
 
     <properties>
