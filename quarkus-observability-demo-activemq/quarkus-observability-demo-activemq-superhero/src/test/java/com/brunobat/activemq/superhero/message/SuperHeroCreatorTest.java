@@ -5,52 +5,27 @@ import com.brunobat.activemq.superhero.model.Hero;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSContext;
-
 import java.util.ArrayList;
 
 import static io.restassured.RestAssured.given;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.hamcrest.Matchers.greaterThan;
 
 @QuarkusTest
 @QuarkusTestResource(ArtemisTestResource.class)
 class SuperHeroCreatorTest {
 
     @Inject
-    SuperHeroCreator creator;
-
-    @Inject
     TestMessageSender messageSender;
-
-    @Test
-    void add() {
-        given()
-                .when().get("/heroes")
-                .then()
-                .log().all()
-                .statusCode(200)
-                .body("$.size()", is(0));
-
-
-        final Hero hero = creator.add("broccoli");
-
-        given()
-                .when().get("/heroes")
-                .then()
-                .log().all()
-                .statusCode(200)
-                .body("$.size()", is(1),
-                        "name", containsInAnyOrder("SUPER-broccoli"));
-    }
 
     @Test
     void receiveMessageAndAdd() {
