@@ -2,6 +2,7 @@ package com.brunobat.activemq.superhero.message;
 
 import com.brunobat.activemq.superhero.model.CapeType;
 import com.brunobat.activemq.superhero.model.Hero;
+import io.opentelemetry.api.trace.Span;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +52,10 @@ public class SuperHeroCreator implements Runnable {
                 if (message == null) {
                     // receive returns `null` if the JMSConsumer is closed
                     return;
+                }
+                Span receivedSpan = (Span) message.getObjectProperty(Span.class.getName());
+                if (receivedSpan != null) {
+                    receivedSpan.end();
                 }
                 String legumeName = message.getBody(String.class);
                 add(legumeName);
