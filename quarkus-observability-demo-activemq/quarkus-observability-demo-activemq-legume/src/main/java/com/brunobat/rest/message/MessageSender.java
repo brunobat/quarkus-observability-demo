@@ -31,7 +31,8 @@ public class MessageSender {
     private static Instrumenter<Message, Message> getProducerInstrumenter(final OpenTelemetry openTelemetry) {
         InstrumenterBuilder<Message, Message> serverBuilder = Instrumenter.builder(
                 openTelemetry,
-                INSTRUMENTATION_NAME, MessagingSpanNameExtractor.create(JmsAttributesGetter.INSTANCE, SEND));
+                INSTRUMENTATION_NAME,
+                MessagingSpanNameExtractor.create(JmsAttributesGetter.INSTANCE, SEND));
 
         Instrumenter<Message, Message> messageMessageInstrumenter = serverBuilder
                 .addAttributesExtractor(MessagingAttributesExtractor.create(JmsAttributesGetter.INSTANCE, SEND))
@@ -40,7 +41,7 @@ public class MessageSender {
                         try {
                             message.setObjectProperty(key, value);
                         } catch (JMSException e) {
-                            // nothing
+                            log.warn("fail to ser property on message: {}", key, e);
                         }
                     }
                 });
@@ -58,6 +59,7 @@ public class MessageSender {
             jmsContext.createProducer()
                     .send(jmsContext.createQueue("heroes"), msg);
             log.info("sent message: " + str);
+            producerInstrumenter.end(spanContext,msg,null, null);
         }
     }
 }

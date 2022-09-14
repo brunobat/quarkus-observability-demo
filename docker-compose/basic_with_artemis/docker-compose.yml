@@ -1,5 +1,15 @@
 version: "2"
 services:
+  portainer:
+    image: portainer/portainer
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/portainer_password:/tmp/portainer_password
+    ports:
+      - 9000:9000
+      - 8000:8000
+    command: --admin-password='$$2y$$05$$U6g.5sn3AAJRShJD2Yahh.QW.K9B2YdSj4.SuGZRlpo14W1My08E2'
+    # username:admin password: portainer
 
   database:
     image: postgres:latest
@@ -14,8 +24,8 @@ services:
     image: jaegertracing/all-in-one:latest
     ports:
       - "16686:16686"
-      - "14268"
-      - "14250"
+      - "14268:14268"
+      - "14250:14250"
   # Collector
   otel-collector:
     image: otel/opentelemetry-collector:latest
