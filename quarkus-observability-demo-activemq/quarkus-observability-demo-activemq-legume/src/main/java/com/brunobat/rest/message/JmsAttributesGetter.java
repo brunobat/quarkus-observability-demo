@@ -9,6 +9,8 @@ import javax.jms.Message;
 import javax.jms.Queue;
 import javax.jms.Topic;
 
+import static com.brunobat.rest.message.MessageSender.HEROES_QUEUE;
+
 enum JmsAttributesGetter implements MessagingAttributesGetter<Message, Message> {
     INSTANCE;
 
@@ -52,7 +54,7 @@ enum JmsAttributesGetter implements MessagingAttributesGetter<Message, Message> 
         }
 
         if (jmsDestination == null) {
-            return null;
+            return HEROES_QUEUE;
         }
 
         if (jmsDestination instanceof Queue) {

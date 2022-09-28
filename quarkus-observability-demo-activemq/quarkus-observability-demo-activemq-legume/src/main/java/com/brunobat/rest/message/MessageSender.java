@@ -22,6 +22,7 @@ import static io.quarkus.opentelemetry.runtime.OpenTelemetryConfig.INSTRUMENTATI
 @ApplicationScoped
 @Slf4j
 public class MessageSender {
+    public static final String HEROES_QUEUE = "heroes";
     @Inject
     ConnectionFactory connectionFactory;
 
@@ -71,7 +72,7 @@ public class MessageSender {
             Context spanContext = producerInstrumenter
                     .start(parentOtelContext, msg);
             jmsContext.createProducer()
-                    .send(jmsContext.createQueue("heroes"), msg);
+                    .send(jmsContext.createQueue(HEROES_QUEUE), msg);
             log.info("sent message: " + str);
             producerInstrumenter.end(spanContext,msg,null, null);
         }
