@@ -47,37 +47,55 @@ public class SuperHeroCreator implements Runnable {
     OpenTelemetry telemetry;
 
     private static Instrumenter<Message, Message> getConsumerInstrumenter(final OpenTelemetry openTelemetry) {
-        InstrumenterBuilder<Message, Message> serverBuilder = Instrumenter.builder(
-            openTelemetry,
-            INSTRUMENTATION_NAME, MessagingSpanNameExtractor.create(JmsAttributesGetter.INSTANCE, PROCESS));
+        InstrumenterBuilder<Message, Message> serverInstrumenterBuilder = Instrumenter.builder(
+                openTelemetry,
+                INSTRUMENTATION_NAME,
+                // The extractor gets the name and operation for the spans
+                MessagingSpanNameExtractor.create(
+                        //How to obtain data from the JMS message
+                        JmsAttributesGetter.INSTANCE,
+                        // We are receiving and processing the message
+                        PROCESS));
 
-        Instrumenter<Message, Message> messageMessageInstrumenter = serverBuilder
-            .addAttributesExtractor(MessagingAttributesExtractor.create(JmsAttributesGetter.INSTANCE, PROCESS))
-            .newConsumerInstrumenter(new TextMapGetter<Message>() {
-                @Override public Iterable<String> keys(final Message carrier) {
-                    try {
-                        return Collections.list(carrier.getPropertyNames());
-                    } catch (JMSException e) {
-                        return Collections.emptyList();
-                    }
-                }
+        Instrumenter<Message, Message> messageInstrumenter = serverInstrumenterBuilder
+                // extracts attribute data from the message and
+                // sets the span attributes according to the semantic conventions
+                .addAttributesExtractor(MessagingAttributesExtractor.create(
+                        //How to obtain data from the JMS message
+                        JmsAttributesGetter.INSTANCE,
+                        // We are receiving and processing the message
+                        PROCESS))
+                .newConsumerInstrumenter(new TextMapGetter<Message>() {
+                    // Teach the instrumenter how to get attributes on the message.
+                    // The context propagation uses the message metadata
 
-                @Nullable @Override public String get(@Nullable final Message carrier, final String key) {
-                    Object value;
-                    try {
-                        value = carrier.getObjectProperty(key);
-                    } catch (JMSException e) {
-                        throw new IllegalStateException(e);
+                    @Override
+                    public Iterable<String> keys(final Message carrier) {
+                        try {
+                            return Collections.list(carrier.getPropertyNames());
+                        } catch (JMSException e) {
+                            return Collections.emptyList();
+                        }
                     }
-                    if (value instanceof String) {
-                        return (String) value;
-                    } else {
-                        log.warn("fail to get property from message: {}", key);
-                        return null;
+
+                    @Nullable
+                    @Override
+                    public String get(@Nullable final Message carrier, final String key) {
+                        Object value;
+                        try {
+                            value = carrier.getObjectProperty(key);
+                        } catch (JMSException e) {
+                            throw new IllegalStateException(e);
+                        }
+                        if (value instanceof String) {
+                            return (String) value;
+                        } else {
+                            log.warn("fail to get property from message: {}", key);
+                            return null;
+                        }
                     }
-                }
-            });
-        return messageMessageInstrumenter;
+                });
+        return messageInstrumenter;
     }
 
     void onStart(@Observes StartupEvent ev) {
@@ -92,24 +110,24 @@ public class SuperHeroCreator implements Runnable {
     public void run() {
         Context parentOtelContext = Context.current();
         Instrumenter<Message, Message> consumerInstrumenter = getConsumerInstrumenter(telemetry);
-//        telemetry.getPropagators().getTextMapPropagator().extract()
 
         try (JMSContext context = connectionFactory.createContext(JMSContext.AUTO_ACKNOWLEDGE)) {
             JMSConsumer consumer = context.createConsumer(context.createQueue("heroes"));
             while (true) {
                 Message message = consumer.receive();
-                Context spanContext = consumerInstrumenter
-                    .start(parentOtelContext, message);
                 if (message == null) {
                     // receive returns `null` if the JMSConsumer is closed
                     return;
                 }
+                Context spanContext = consumerInstrumenter
+                        .start(parentOtelContext, message);
 
                 String legumeName = message.getBody(String.class);
                 add(legumeName);
                 log.info("Received a Legume: " + legumeName);
+
                 consumerInstrumenter
-                    .end(spanContext, message, null, null);
+                        .end(spanContext, message, null, null);
             }
         } catch (JMSException e) {
             throw new RuntimeException(e);
@@ -119,9 +137,9 @@ public class SuperHeroCreator implements Runnable {
     @Transactional(REQUIRED)
     Hero add(final String legumeName) {
         final Hero hero = Hero.builder()
-                              .name("SUPER-" + legumeName)
-                              .capeType(CapeType.SUPERMAN)
-                              .build();
+                .name("SUPER-" + legumeName)
+                .capeType(CapeType.SUPERMAN)
+                .build();
 
         final Hero createdHero = entityManager.merge(hero);
         log.info("hero created: {}", createdHero);

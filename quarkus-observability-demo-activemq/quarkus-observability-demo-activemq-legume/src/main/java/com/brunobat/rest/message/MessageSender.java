@@ -29,23 +29,37 @@ public class MessageSender {
     OpenTelemetry telemetry;
 
     private static Instrumenter<Message, Message> getProducerInstrumenter(final OpenTelemetry openTelemetry) {
-        InstrumenterBuilder<Message, Message> serverBuilder = Instrumenter.builder(
+        InstrumenterBuilder<Message, Message> serverInstrumenterBuilder = Instrumenter.builder(
                 openTelemetry,
                 INSTRUMENTATION_NAME,
-                MessagingSpanNameExtractor.create(JmsAttributesGetter.INSTANCE, SEND));
+                // The extractor gets the name and operation for the spans
+                MessagingSpanNameExtractor.create(
+                        //How to obtain data from the JMS message
+                        JmsAttributesGetter.INSTANCE,
+                        // We are sending data away
+                        SEND));
 
-        Instrumenter<Message, Message> messageMessageInstrumenter = serverBuilder
-                .addAttributesExtractor(MessagingAttributesExtractor.create(JmsAttributesGetter.INSTANCE, SEND))
+        Instrumenter<Message, Message> messageInstrumenter = serverInstrumenterBuilder
+                // extracts attribute data from the message and
+                // sets the span attributes according to the semantic conventions
+                .addAttributesExtractor(MessagingAttributesExtractor.create(
+                        //How to obtain data from the JMS message
+                        JmsAttributesGetter.INSTANCE,
+                        // We are sending data away
+                        SEND))
                 .newProducerInstrumenter((message, key, value) -> {
+                    // Teach the instrumenter how to set attributes on the message.
+                    // For context propagation using message metadata
                     if (message != null) {
                         try {
                             message.setObjectProperty(key, value);
                         } catch (JMSException e) {
+                            // We don't want to abort because of this
                             log.warn("fail to ser property on message: {}", key, e);
                         }
                     }
                 });
-        return messageMessageInstrumenter;
+        return messageInstrumenter;
     }
 
     public void send(String str) {
