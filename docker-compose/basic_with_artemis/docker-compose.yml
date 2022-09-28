@@ -1,0 +1,50 @@
+version: "2"
+services:
+  portainer:
+    image: portainer/portainer
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/portainer_password:/tmp/portainer_password
+    ports:
+      - 9000:9000
+      - 8000:8000
+    command: --admin-password='$$2y$$05$$U6g.5sn3AAJRShJD2Yahh.QW.K9B2YdSj4.SuGZRlpo14W1My08E2'
+    # username:admin password: portainer
+
+  database:
+    image: postgres:latest
+    environment:
+      POSTGRES_PASSWORD: changeit
+      POSTGRES_USER: pguser
+      POSTGRES_DB: test
+    ports:
+      - '5432:5432'
+  # Jaeger
+  jaeger-all-in-one:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"
+      - "14268:14268"
+      - "14250:14250"
+  # Collector
+  otel-collector:
+    image: otel/opentelemetry-collector:latest
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "13133:13133" # Health_check extension
+      - "4317:4317"   # OTLP gRPC receiver
+      - "55680:55680" # OTLP gRPC receiver alternative port
+    depends_on:
+      - jaeger-all-in-one
+
+  artemis:
+    image: quay.io/artemiscloud/activemq-artemis-broker:1.0.6
+    environment:
+      AMQ_USER: quarkus
+      AMQ_PASSWORD: quarkus
+    ports:
+      - "8161:8161"
+      - "61616:61616"
+      - "5672:5672"

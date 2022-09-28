@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.brunobat</groupId>
+        <artifactId>quarkus-observability-demo</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>quarkus-observability-demo-activemq</artifactId>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>quarkus-observability-demo-activemq-legume</module>
+        <module>quarkus-observability-demo-activemq-superhero</module>
+    </modules>
+
+    <properties>
+        <quarkus-artemis-bom.version>1.1.1</quarkus-artemis-bom.version>
+        <lombok.version>1.18.24</lombok.version>
+        <rest-assured.version>5.1.1</rest-assured.version>
+    </properties>
+
+</project>
