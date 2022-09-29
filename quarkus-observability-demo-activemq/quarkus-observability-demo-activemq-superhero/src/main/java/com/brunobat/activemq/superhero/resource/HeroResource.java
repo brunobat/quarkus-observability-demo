@@ -16,7 +16,6 @@ public class HeroResource implements HeroApi {
     @Inject
     EntityManager manager;
 
-//    @Timeout(1000)
     public List<HeroItem> list() {
 
         return manager.createQuery("SELECT h FROM Hero h", Hero.class).getResultList().stream()

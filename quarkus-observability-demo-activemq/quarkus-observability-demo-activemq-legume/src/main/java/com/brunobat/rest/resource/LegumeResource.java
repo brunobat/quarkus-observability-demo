@@ -5,6 +5,10 @@ import com.brunobat.rest.data.LegumeItem;
 import com.brunobat.rest.data.LegumeNew;
 import com.brunobat.rest.message.MessageSender;
 import com.brunobat.rest.model.Legume;
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Context;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -17,6 +21,7 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
 
+import static io.quarkus.opentelemetry.runtime.OpenTelemetryConfig.INSTRUMENTATION_NAME;
 import static java.util.Arrays.asList;
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
@@ -24,13 +29,16 @@ import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 
 @ApplicationScoped
 @Slf4j
-public class LegumeResource implements LegumeApi{
+public class LegumeResource implements LegumeApi {
 
     @Inject
     EntityManager manager;
 
     @Inject
     MessageSender messageSender;
+
+    @Inject
+    OpenTelemetry telemetry;
 
     @Transactional
     public Response provision() {
@@ -62,24 +70,19 @@ public class LegumeResource implements LegumeApi{
                 .orElse(Response.status(NOT_FOUND).build());
     }
 
-    //    @Fallback(fallbackMethod = "fallback")
-//    @Timeout(500)
     public List<LegumeItem> list() {
-        log.info("someone asked for a list");
-        return manager.createQuery("SELECT l FROM Legume l").getResultList();
-    }
+        Tracer tracer = telemetry.getTracer(INSTRUMENTATION_NAME);
+        Context parentOtelContext = Context.current();
+        Span span = tracer.spanBuilder("listAllLegumes")
+                .setParent(parentOtelContext)
+                .startSpan();
 
-//    /**
-//     * To be used in case of exception or timeout
-//     *
-//     * @return a list of alternative legumes.
-//     */
-//    public List<Legume> fallback() {
-//        return singletonList(Legume.builder()
-//                                   .name("Failed Legume")
-//                                   .description("Fallback answer due to timeout")
-//                                   .build());
-//    }
+        log.info("someone asked for a list");
+        List resultList = manager.createQuery("SELECT l FROM Legume l").getResultList();
+
+        span.end();
+        return resultList;
+    }
 
     private Optional<LegumeItem> find(final String legumeId) {
         return Optional.ofNullable(manager.find(Legume.class, legumeId))
