@@ -29,7 +29,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static io.opentelemetry.instrumentation.api.instrumenter.messaging.MessageOperation.PROCESS;
-import static io.quarkus.opentelemetry.runtime.OpenTelemetryConfig.INSTRUMENTATION_NAME;
+import static io.quarkus.opentelemetry.runtime.config.OpenTelemetryConfig.INSTRUMENTATION_NAME;
 import static javax.transaction.Transactional.TxType.REQUIRED;
 
 @ApplicationScoped
@@ -65,7 +65,7 @@ public class SuperHeroCreator implements Runnable {
                         JmsAttributesGetter.INSTANCE,
                         // We are receiving and processing the message
                         PROCESS))
-                .newConsumerInstrumenter(new TextMapGetter<Message>() {
+                .buildConsumerInstrumenter(new TextMapGetter<Message>() {
                     // Teach the instrumenter how to get attributes on the message.
                     // The context propagation uses the message metadata
 

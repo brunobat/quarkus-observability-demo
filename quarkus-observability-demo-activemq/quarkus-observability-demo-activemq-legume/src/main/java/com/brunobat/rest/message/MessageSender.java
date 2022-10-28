@@ -1,7 +1,6 @@
 package com.brunobat.rest.message;
 
 import io.opentelemetry.api.OpenTelemetry;
-import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.instrumentation.api.instrumenter.Instrumenter;
 import io.opentelemetry.instrumentation.api.instrumenter.InstrumenterBuilder;
@@ -17,7 +16,7 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 
 import static io.opentelemetry.instrumentation.api.instrumenter.messaging.MessageOperation.SEND;
-import static io.quarkus.opentelemetry.runtime.OpenTelemetryConfig.INSTRUMENTATION_NAME;
+import static io.quarkus.opentelemetry.runtime.config.OpenTelemetryConfig.INSTRUMENTATION_NAME;
 
 @ApplicationScoped
 @Slf4j
@@ -47,7 +46,7 @@ public class MessageSender {
                         JmsAttributesGetter.INSTANCE,
                         // We are sending data away
                         SEND))
-                .newProducerInstrumenter((message, key, value) -> {
+                .buildProducerInstrumenter((message, key, value) -> {
                     // Teach the instrumenter how to set attributes on the message.
                     // For context propagation using message metadata
                     if (message != null) {
