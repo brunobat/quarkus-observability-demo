@@ -23,7 +23,7 @@ import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 
 @ApplicationScoped
 @Slf4j
-public class LegumeResource implements LegumeApi{
+public class LegumeResource implements LegumeApi {
 
     @Inject
     EntityManager manager;
@@ -99,7 +99,7 @@ public class LegumeResource implements LegumeApi{
                 .name(addedLegume.getName())
                 .description(addedLegume.getDescription())
                 .build();
-
+        log.info("created " + legumeItem);
         return legumeItem;
     }
 }
