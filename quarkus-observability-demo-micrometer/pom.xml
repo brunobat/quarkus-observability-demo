@@ -13,16 +13,10 @@
     <artifactId>quarkus-observability-demo-micrometer</artifactId>
 
     <properties>
-        <compiler-plugin.version>3.8.1</compiler-plugin.version>
-        <maven.compiler.release>11</maven.compiler.release>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-        <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-        <quarkus.platform.version>2.10.1.Final</quarkus.platform.version>
-        <skipITs>true</skipITs>
-        <surefire-plugin.version>3.0.0-M7</surefire-plugin.version>
+        <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
+        <quarkus.platform.version>2.11.0.Final</quarkus.platform.version>
     </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -48,9 +42,14 @@
             <artifactId>quarkus-hibernate-orm</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-micrometer-registry-prometheus</artifactId>
+            <groupId>io.quarkiverse.micrometer.registry</groupId>
+            <artifactId>quarkus-micrometer-registry-otlp</artifactId>
+            <version>2.11.0</version>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>io.quarkus</groupId>-->
+<!--            <artifactId>quarkus-micrometer-registry-prometheus</artifactId>-->
+<!--        </dependency>-->
 <!--        <dependency>-->
 <!--            <groupId>org.eclipse.microprofile.metrics</groupId>-->
 <!--            <artifactId>microprofile-metrics-api</artifactId>-->
@@ -86,6 +85,11 @@
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
             <version>5.1.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-jdbc-h2</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
