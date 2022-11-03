@@ -1,4 +1,4 @@
-package com.brunobat.rest.data;
+package com.brunobat.micrometer.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

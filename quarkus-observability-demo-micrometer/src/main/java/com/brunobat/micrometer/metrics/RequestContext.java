@@ -1,4 +1,4 @@
-package com.brunobat.rest.metrics;
+package com.brunobat.micrometer.metrics;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;

@@ -1,4 +1,4 @@
-package com.brunobat.rest.metrics;
+package com.brunobat.micrometer.metrics;
 
 
 import io.micrometer.core.instrument.Meter;
@@ -6,7 +6,6 @@ import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.config.MeterFilter;
 
 import javax.enterprise.context.ContextNotActiveException;
-import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.CDI;

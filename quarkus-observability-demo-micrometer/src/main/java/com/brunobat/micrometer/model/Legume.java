@@ -1,4 +1,4 @@
-package com.brunobat.rest.model;
+package com.brunobat.micrometer.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
