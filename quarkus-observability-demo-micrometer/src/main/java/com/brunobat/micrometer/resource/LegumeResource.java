@@ -1,10 +1,11 @@
-package com.brunobat.rest.resource;
+package com.brunobat.micrometer.resource;
 
 
-import com.brunobat.rest.data.LegumeItem;
-import com.brunobat.rest.data.LegumeNew;
-import com.brunobat.rest.model.Legume;
+import com.brunobat.micrometer.data.LegumeItem;
+import com.brunobat.micrometer.data.LegumeNew;
+import com.brunobat.micrometer.model.Legume;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.microprofile.config.Config;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -23,10 +24,13 @@ import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 
 @ApplicationScoped
 @Slf4j
-public class LegumeResource implements LegumeApi {
+public class LegumeResource implements LegumeApi{
 
     @Inject
     EntityManager manager;
+
+    @Inject
+    Config config;
 
     @Transactional
     public Response provision() {
@@ -58,10 +62,24 @@ public class LegumeResource implements LegumeApi {
                 .orElse(Response.status(NOT_FOUND).build());
     }
 
+    //    @Fallback(fallbackMethod = "fallback")
+//    @Timeout(500)
     public List<LegumeItem> list() {
         log.info("someone asked for a list");
         return manager.createQuery("SELECT l FROM Legume l").getResultList();
     }
+
+//    /**
+//     * To be used in case of exception or timeout
+//     *
+//     * @return a list of alternative legumes.
+//     */
+//    public List<Legume> fallback() {
+//        return singletonList(Legume.builder()
+//                                   .name("Failed Legume")
+//                                   .description("Fallback answer due to timeout")
+//                                   .build());
+//    }
 
     private Optional<LegumeItem> find(final String legumeId) {
         return Optional.ofNullable(manager.find(Legume.class, legumeId))
@@ -85,7 +103,7 @@ public class LegumeResource implements LegumeApi {
                 .name(addedLegume.getName())
                 .description(addedLegume.getDescription())
                 .build();
-        log.info("created " + legumeItem);
+
         return legumeItem;
     }
 }

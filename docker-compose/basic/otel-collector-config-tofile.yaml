@@ -9,6 +9,17 @@ receivers:
     protocols:
       grpc:
         endpoint: otel-collector:55680
+#  prometheus:
+#    config:
+#      scrape_configs:
+#        - job_name: 'otelcol'
+#          scrape_interval: 10s
+#          static_configs:
+#            - targets: [ '0.0.0.0:8888' ]
+#          metric_relabel_configs:
+#            - source_labels: [ __name__ ]
+#              regex: '.*grpc_io.*'
+#              action: drop
 
 exporters:
   logging:
@@ -29,9 +40,10 @@ service:
   pipelines:
     traces:
       receivers: [otlp,otlp/2]
-      processors: [batch]
-      exporters: [jaeger]
+      processors: []
+#      exporters: [jaeger]
+      exporters: [logging]
     metrics:
-      receivers: [ otlp,otlp/2 ]
-      processors: [ ]
-      exporters: [ logging ]
+      receivers: [otlp,otlp/2]
+      processors: []
+      exporters: [logging]
