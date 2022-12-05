@@ -3,14 +3,13 @@ package com.brunobat.opentracing.resource;
 import com.brunobat.opentracing.data.LegumeItem;
 import com.brunobat.opentracing.data.LegumeNew;
 import com.brunobat.opentracing.model.Legume;
-import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.StatusCode;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Scope;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
-import io.opentelemetry.opentracingshim.OpenTracingShim;
-import io.opentracing.Span;
-import io.opentracing.Tracer;
-import io.opentracing.tag.Tags;
+import io.opentelemetry.semconv.trace.attributes.SemanticAttributes;
 import lombok.extern.slf4j.Slf4j;
-//import org.eclipse.microprofile.opentracing.Traced;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -34,8 +33,9 @@ public class LegumeResource implements LegumeApi {
     @Inject
     EntityManager manager;
 
+
     @Inject
-    OpenTelemetry openTelemetry;
+    Tracer otelTracer;
 
     @Transactional
     public Response provision() {
@@ -71,16 +71,18 @@ public class LegumeResource implements LegumeApi {
     public List<LegumeItem> list() {
         log.info("someone asked for a list");
 
-        Tracer openTracingTracer = OpenTracingShim.createTracerShim(openTelemetry);
+        Span incomingSpan = Span.current();
+        incomingSpan.setAttribute(SemanticAttributes.CODE_NAMESPACE, LegumeResource.class.getName());
 
-        openTracingTracer.activeSpan().setTag(Tags.COMPONENT, "Manual tag - LegumeResource");
-
-        Span dbSpan = openTracingTracer.buildSpan("Manual span - Go to DB and get the data").start();
-
-        List selectLFromLegume = manager.createQuery("SELECT l FROM Legume l").getResultList();
-
-        dbSpan.finish();
-        return selectLFromLegume;
+        Span dbSpan = otelTracer.spanBuilder("Manual span - Go to DB and get the data").startSpan();
+        try (Scope scope = dbSpan.makeCurrent()) {
+            return manager.createQuery("SELECT l FROM Legume l").getResultList();
+        } catch (Exception e) {
+            dbSpan.setStatus(StatusCode.ERROR, e.getMessage());
+            throw e;
+        } finally {
+            dbSpan.end();
+        }
     }
 
     private Optional<LegumeItem> find(final String legumeId) {
