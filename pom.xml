@@ -14,17 +14,20 @@
 <!--        <module>quarkus-observability-demo-rabbitmq</module>-->
         <module>quarkus-observability-demo-activemq</module>
         <module>quarkus-observability-demo-micrometer</module>
+        <module>quarkus-observability-demo-opentracing-shim</module>
     </modules>
 
     <properties>
         <compiler-plugin.version>3.8.1</compiler-plugin.version>
-        <maven.compiler.release>11</maven.compiler.release>
+        <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-        <quarkus.platform.version>2.14.0.CR1</quarkus.platform.version>
+        <quarkus.platform.version>2.14.2.Final</quarkus.platform.version>
         <quarkus-micrometer-registry-otlp.version>2.11.0</quarkus-micrometer-registry-otlp.version>
+        <lombok.version>1.18.24</lombok.version>
+        <rest-assured.version>5.2.0</rest-assured.version>
         <skipITs>true</skipITs>
         <surefire-plugin.version>3.0.0-M7</surefire-plugin.version>
     </properties>
@@ -36,7 +39,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.10.1</version>
                 <configuration>
-                    <release>11</release>
+                    <release>${maven.compiler.release}</release>
                 </configuration>
             </plugin>
         </plugins>

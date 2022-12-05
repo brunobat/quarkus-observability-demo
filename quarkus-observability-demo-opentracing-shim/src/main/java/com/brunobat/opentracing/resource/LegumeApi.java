@@ -1,13 +1,14 @@
-package com.brunobat.rest.resource;
+package com.brunobat.opentracing.resource;
 
-import com.brunobat.rest.data.LegumeItem;
-import com.brunobat.rest.data.LegumeNew;
+import com.brunobat.opentracing.data.LegumeItem;
+import com.brunobat.opentracing.data.LegumeNew;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.jboss.resteasy.annotations.jaxrs.PathParam;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
@@ -16,11 +17,8 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
-
-
 import java.util.List;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -137,26 +135,4 @@ public interface LegumeApi {
     )
     @GET
     List<LegumeItem> list();
-
-    @Operation(
-            operationId = "ListLegumes",
-            summary = "List all legumes"
-    )
-    @APIResponse(
-            responseCode = "200",
-            description = "The List with all legumes"
-    )
-    @APIResponse(
-            name = "notFound",
-            responseCode = "404",
-            description = "Legume list not found"
-    )
-    @APIResponse(
-            name = "internalError",
-            responseCode = "500",
-            description = "Internal Server Error"
-    )
-    @GET
-    @Path("/{legumeId}")
-    LegumeItem getById(@PathParam("legumeId") String legumeId);
 }
