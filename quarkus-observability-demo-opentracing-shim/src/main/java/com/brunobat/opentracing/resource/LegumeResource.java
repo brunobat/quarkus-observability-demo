@@ -3,10 +3,14 @@ package com.brunobat.opentracing.resource;
 import com.brunobat.opentracing.data.LegumeItem;
 import com.brunobat.opentracing.data.LegumeNew;
 import com.brunobat.opentracing.model.Legume;
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+import io.opentelemetry.opentracingshim.OpenTracingShim;
 import io.opentracing.Span;
+import io.opentracing.Tracer;
 import io.opentracing.tag.Tags;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.microprofile.opentracing.Traced;
+//import org.eclipse.microprofile.opentracing.Traced;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -31,7 +35,7 @@ public class LegumeResource implements LegumeApi {
     EntityManager manager;
 
     @Inject
-    io.opentracing.Tracer configuredTracer;
+    OpenTelemetry openTelemetry;
 
     @Transactional
     public Response provision() {
@@ -63,17 +67,19 @@ public class LegumeResource implements LegumeApi {
                 .orElse(Response.status(NOT_FOUND).build());
     }
 
-    @Traced(operationName = "This will request all the legumes in the DB")
+    @WithSpan("From Otel @WithSpan Annotation - Get Legumes list")
     public List<LegumeItem> list() {
         log.info("someone asked for a list");
 
-        configuredTracer.activeSpan().setTag(Tags.COMPONENT, "LegumeResource");
+        Tracer openTracingTracer = OpenTracingShim.createTracerShim(openTelemetry);
 
-        Span innerListStuff = configuredTracer.buildSpan("Inner list stuff").start();
+        openTracingTracer.activeSpan().setTag(Tags.COMPONENT, "Manual tag - LegumeResource");
+
+        Span dbSpan = openTracingTracer.buildSpan("Manual span - Go to DB and get the data").start();
 
         List selectLFromLegume = manager.createQuery("SELECT l FROM Legume l").getResultList();
 
-        innerListStuff.finish();
+        dbSpan.finish();
         return selectLFromLegume;
     }
 
