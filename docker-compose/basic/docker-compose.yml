@@ -14,9 +14,9 @@ services:
     image: jaegertracing/all-in-one:latest
     ports:
       - "16686:16686"
-      - "14268:14268"
-      - "14250:14250"
-  # Collector
+      - "14268:14268" # receive OpenTracing traces
+      - "14250:14250" # receive from otel-collector
+  # Collector. Currently, included with jaeger-all-in-one.
   otel-collector:
     image: otel/opentelemetry-collector:latest
     command: ["--config=/etc/otel-collector-config.yaml"]

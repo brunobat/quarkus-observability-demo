@@ -1,16 +1,15 @@
-<?xml version="1.0"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <modelVersion>4.0.0</modelVersion>
-
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>com.brunobat</groupId>
         <artifactId>quarkus-observability-demo</artifactId>
+        <groupId>com.brunobat</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
+    <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>quarkus-observability-demo-resteasy</artifactId>
+    <artifactId>quarkus-observability-opentracing-shim</artifactId>
 
     <dependencyManagement>
         <dependencies>
@@ -38,11 +37,11 @@
         </dependency>
 <!--        <dependency>-->
 <!--            <groupId>io.quarkus</groupId>-->
-<!--            <artifactId>quarkus-opentelemetry-exporter-jaeger</artifactId>-->
+<!--            <artifactId>quarkus-opentelemetry</artifactId>-->
 <!--        </dependency>-->
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-opentelemetry</artifactId>
+            <artifactId>quarkus-smallrye-opentracing</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
