@@ -31,6 +31,9 @@ public class Hero {
     @NotEmpty
     private String name;
 
+    @NotEmpty
+    private String originalName;
+
     private CapeType capeType;
 }
 

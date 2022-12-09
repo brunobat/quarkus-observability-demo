@@ -62,24 +62,10 @@ public class LegumeResource implements LegumeApi{
                 .orElse(Response.status(NOT_FOUND).build());
     }
 
-    //    @Fallback(fallbackMethod = "fallback")
-//    @Timeout(500)
     public List<LegumeItem> list() {
         log.info("someone asked for a list");
         return manager.createQuery("SELECT l FROM Legume l").getResultList();
     }
-
-//    /**
-//     * To be used in case of exception or timeout
-//     *
-//     * @return a list of alternative legumes.
-//     */
-//    public List<Legume> fallback() {
-//        return singletonList(Legume.builder()
-//                                   .name("Failed Legume")
-//                                   .description("Fallback answer due to timeout")
-//                                   .build());
-//    }
 
     private Optional<LegumeItem> find(final String legumeId) {
         return Optional.ofNullable(manager.find(Legume.class, legumeId))

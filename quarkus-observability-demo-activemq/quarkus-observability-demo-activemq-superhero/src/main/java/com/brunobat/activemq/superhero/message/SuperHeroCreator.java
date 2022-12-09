@@ -138,6 +138,7 @@ public class SuperHeroCreator implements Runnable {
     Hero add(final String legumeName) {
         final Hero hero = Hero.builder()
                 .name("SUPER-" + legumeName)
+                .originalName(legumeName)
                 .capeType(CapeType.SUPERMAN)
                 .build();
 

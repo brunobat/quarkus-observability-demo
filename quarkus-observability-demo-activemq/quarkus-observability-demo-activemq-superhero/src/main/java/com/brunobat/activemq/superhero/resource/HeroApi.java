@@ -2,12 +2,14 @@ package com.brunobat.activemq.superhero.resource;
 
 import com.brunobat.activemq.superhero.data.HeroItem;
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import java.util.List;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -36,5 +38,9 @@ public interface HeroApi {
         description = "Internal Server Error"
     )
     @GET
-    List<HeroItem> list();
+    List<HeroItem> list(
+            @Parameter(name = "legumeName",
+                    required = false)
+            @QueryParam("legumeName")
+            final String legumeName);
 }
