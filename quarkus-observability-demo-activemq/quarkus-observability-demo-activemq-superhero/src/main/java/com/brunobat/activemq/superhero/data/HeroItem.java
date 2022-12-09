@@ -21,6 +21,8 @@ public class HeroItem {
 
     private String name;
 
+    private String originalName;
+
     private CapeType capeType;
 }
 

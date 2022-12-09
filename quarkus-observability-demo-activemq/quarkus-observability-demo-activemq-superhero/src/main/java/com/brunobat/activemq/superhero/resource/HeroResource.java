@@ -36,6 +36,7 @@ public class HeroResource implements HeroApi {
     private HeroItem getHeroItem(Hero h) {
         return HeroItem.builder()
                 .name(h.getName())
+                .originalName(h.getOriginalName())
                 .id(h.getId())
                 .capeType(h.getCapeType())
                 .build();
