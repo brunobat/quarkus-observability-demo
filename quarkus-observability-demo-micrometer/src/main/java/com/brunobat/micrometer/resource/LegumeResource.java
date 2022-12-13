@@ -1,11 +1,14 @@
 package com.brunobat.micrometer.resource;
 
 
+import com.brunobat.micrometer.client.FooClient;
 import com.brunobat.micrometer.data.LegumeItem;
 import com.brunobat.micrometer.data.LegumeNew;
 import com.brunobat.micrometer.model.Legume;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.config.Config;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -62,24 +65,10 @@ public class LegumeResource implements LegumeApi{
                 .orElse(Response.status(NOT_FOUND).build());
     }
 
-    //    @Fallback(fallbackMethod = "fallback")
-//    @Timeout(500)
     public List<LegumeItem> list() {
         log.info("someone asked for a list");
         return manager.createQuery("SELECT l FROM Legume l").getResultList();
     }
-
-//    /**
-//     * To be used in case of exception or timeout
-//     *
-//     * @return a list of alternative legumes.
-//     */
-//    public List<Legume> fallback() {
-//        return singletonList(Legume.builder()
-//                                   .name("Failed Legume")
-//                                   .description("Fallback answer due to timeout")
-//                                   .build());
-//    }
 
     private Optional<LegumeItem> find(final String legumeId) {
         return Optional.ofNullable(manager.find(Legume.class, legumeId))

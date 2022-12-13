@@ -16,31 +16,31 @@ import javax.inject.Singleton;
 @Singleton
 public class MeterFilterProducer {
 
-    //    private static AtomicInteger differentValueOnEachCall = new AtomicInteger(0);
-    @Inject
-    Provider<RequestContext> context;
-
-    @Inject
-    BeanManager beanManager;
-
     @Produces
     @Singleton
     public MeterFilter customMeterFilter() {
-//        final String targetMetric = "http.server.requests.seconds.sum";
         return new MeterFilter() {
             @Override
             public Meter.Id map(Meter.Id id) {
                 try {
-                    Tag newTag = Tag.of("differentValueOnEachCall", String.valueOf(getSomethingFromRequest()));
-                    return id.withTag(newTag);
+                    if (id.getName().startsWith("http.server.requests")) {
+                        String somethingFromRequest = getSomethingFromRequest();
+                        Tag newTag = Tag.of("differentValueOnEachCall", somethingFromRequest);
+                        return id.withTag(newTag);
+                    }
                 } catch (ContextNotActiveException e) {
-                    return id.withTag(Tag.of("differentValueOnEachCall", "empty"));
+                    return id.withTag(Tag.of("differentValueOnEachCall", "fail"));
                 }
+                return id;
             }
         };
     }
 
     private String getSomethingFromRequest() {
-        return CDI.current().select(RequestContext.class).get().getSomethingFromRequest();
+        if (CDI.current().select(RequestContext.class).isResolvable()) {
+            return CDI.current().select(RequestContext.class).get().getSomethingFromRequest();
+        } else {
+            return "empty";
+        }
     }
 }

@@ -12,11 +12,6 @@
 
     <artifactId>quarkus-observability-demo-micrometer</artifactId>
 
-    <properties>
-<!--        <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>-->
-<!--        <quarkus.platform.version>2.11.0.Final</quarkus.platform.version>-->
-    </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -31,6 +26,14 @@
     <dependencies>
         <dependency>
             <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-rest-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-rest-client-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
             <artifactId>quarkus-resteasy-jackson</artifactId>
         </dependency>
         <dependency>
@@ -41,11 +44,11 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-hibernate-orm</artifactId>
         </dependency>
-                <dependency>
-                    <groupId>io.quarkiverse.micrometer.registry</groupId>
-                    <artifactId>quarkus-micrometer-registry-otlp</artifactId>
-                    <version>${quarkus-micrometer-registry-otlp.version}</version>
-                </dependency>
+        <dependency>
+            <groupId>io.quarkiverse.micrometer.registry</groupId>
+            <artifactId>quarkus-micrometer-registry-otlp</artifactId>
+            <version>${quarkus-micrometer-registry-otlp.version}</version>
+        </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-opentelemetry</artifactId>
