@@ -90,7 +90,7 @@ public class SuperHeroCreator implements Runnable {
                         if (value instanceof String) {
                             return (String) value;
                         } else {
-                            log.warn("fail to get property from message: {}", key);
+                            log.debug("fail to get property from message: {}", key);
                             return null;
                         }
                     }
@@ -124,7 +124,7 @@ public class SuperHeroCreator implements Runnable {
 
                 String legumeName = message.getBody(String.class);
                 add(legumeName);
-                log.info("Received a Legume: " + legumeName);
+//                log.info("Received a Legume: " + legumeName);
 
                 consumerInstrumenter
                         .end(spanContext, message, null, null);

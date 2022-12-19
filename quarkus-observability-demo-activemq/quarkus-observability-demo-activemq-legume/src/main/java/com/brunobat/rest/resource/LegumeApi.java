@@ -18,6 +18,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 
@@ -136,5 +137,8 @@ public interface LegumeApi {
             description = "Internal Server Error"
     )
     @GET
-    List<LegumeItem> list();
+    List<LegumeItem> list(
+        @Parameter(name = "pageIndex", required = false)
+        @QueryParam("pageIndex")
+        final int pageIndex);
 }

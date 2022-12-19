@@ -2,6 +2,8 @@ package com.brunobat.activemq.superhero.resource;
 
 import com.brunobat.activemq.superhero.data.HeroItem;
 import com.brunobat.activemq.superhero.model.Hero;
+import com.brunobat.activemq.superhero.repository.HeroRepository;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -11,14 +13,16 @@ import java.util.List;
 import static java.util.stream.Collectors.toList;
 
 @ApplicationScoped
+@Slf4j
 public class HeroResource implements HeroApi {
 
     @Inject
-    EntityManager manager;
+    HeroRepository repository;
 
-    public List<HeroItem> list(final String originalName) {
+    public List<HeroItem> list(final String originalName, int pageIndex) {
         if (originalName == null || originalName.isBlank()) {
-            return manager.createQuery("SELECT h FROM Hero h", Hero.class).getResultList().stream()
+            log.info("someone asked for a list for index: " + pageIndex);
+            return repository.listHeroes(pageIndex).stream()
                     .map(this::getHeroItem)
                     .collect(toList());
         }else {
@@ -27,8 +31,7 @@ public class HeroResource implements HeroApi {
     }
 
     private List<HeroItem> findByOriginalName(final String originalName) {
-        return manager.createQuery("SELECT h FROM Hero h WHERE h.originalName = :originalName", Hero.class)
-                .setParameter("originalName", originalName).getResultList().stream()
+        return repository.findByOriginalName(originalName).stream()
                 .map(this::getHeroItem)
                 .collect(toList());
     }

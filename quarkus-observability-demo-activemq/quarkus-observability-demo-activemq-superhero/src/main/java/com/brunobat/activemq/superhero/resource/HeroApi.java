@@ -39,8 +39,10 @@ public interface HeroApi {
     )
     @GET
     List<HeroItem> list(
-            @Parameter(name = "legumeName",
-                    required = false)
+            @Parameter(name = "legumeName", required = false)
             @QueryParam("legumeName")
-            final String legumeName);
+            final String legumeName,
+            @Parameter(name = "pageIndex", required = false)
+            @QueryParam("pageIndex")
+            final int pageIndex);
 }

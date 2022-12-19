@@ -1,0 +1,140 @@
+# This is the name of the benchmark. It's recommended to keep this in sync with
+# name of this file, adding extension `.hf.yaml`.
+name: quarkus-activemq
+# We must define at least one HTTP target, in this case it becomes a default
+# for all HTTP requests.
+http:
+  - host: http://localhost:8080
+    sharedConnections: 30
+  - host: http://localhost:8081
+    sharedConnections: 20
+phases:
+  - rampup:
+      increasingRate:
+        initialUsersPerSec: 1
+        targetUsersPerSec: 10
+        # We expect at most 200 users being active at one moment - see below
+        maxSessions: 20
+        # duration: 1m
+        duration: 10s
+        scenario:
+        # The only sequence in this scenario is called `test`.
+        - createLegumesScenario:
+          # Step `randomItem` randomly picks one item from the list below...
+          - randomInt: itemId <- 1 .. 99999
+          - randomUUID: itemDescription
+          - httpRequest:
+              # HTTP request will read the variable from the session and format
+              # the path for the GET request
+              POST: /legumes/
+              authority: localhost:8080
+              headers:
+                content-type: application/json
+              body: |
+                {
+                  "description":"Shows up on summer - ${itemDescription}",
+                  "name":"Courgette-${itemId}"
+                }
+              handler:
+                # We'll check that the response was successful (status 200-299)
+                status:
+                  range: 2xx
+                # When the response is fully processed we'll set variable `completed`
+                # in the session.
+                onCompletion:
+                  set: completed <- yes
+              # For demonstration purposes we will set `sync: false`.
+              # Next step is executed immediately after we fire the request, not
+              # waiting for the response.																									
+              # sync: false
+        - getHeroesScenario:
+            - randomInt: pageIndex <- 1 .. 9
+            - httpRequest:
+                GET: /heroes?pageIndex=${pageIndex}
+                authority: localhost:8081
+                handler:
+                  # We'll check that the response was successful (status 200-299)
+                  status:
+                    range: 2xx
+                  # When the response is fully processed we'll set variable `completed`
+                  # in the session.
+                  onCompletion:
+                    set: completed <- yes
+                # For demonstration purposes we will set `sync: false`.
+                # Next step is executed immediately after we fire the request, not
+                # waiting for the response.
+                # sync: false
+            - awaitVar: completed
+  - mainPhase:
+      constantRate:
+        # users will be starting the scenario every second
+        usersPerSec: 100
+        duration: 5s
+        startAfter: rampup
+        scenario:
+        # The only sequence in this scenario is called `test`.
+        - createLegumesScenario:
+          # Step `randomItem` randomly picks one item from the list below...
+          - randomInt: itemId <- 1 .. 99999
+          - randomUUID: itemDescription
+          - httpRequest:
+              # HTTP request will read the variable from the session and format
+              # the path for the GET request
+              POST: /legumes/
+              authority: localhost:8080
+              headers:
+                content-type: application/json
+              body: |
+                {
+                  "description":"Shows up on summer - ${itemDescription}",
+                  "name":"Courgette-${itemId}"
+                }
+              handler:
+                # We'll check that the response was successful (status 200-299)
+                status:
+                  range: 2xx
+                # When the response is fully processed we'll set variable `completed`
+                # in the session.
+                onCompletion:
+                  set: completed <- yes
+              # For demonstration purposes we will set `sync: false`.
+              # Next step is executed immediately after we fire the request, not
+              # waiting for the response.
+              # sync: false
+              # We'll wait for the `completed` var to be set in this step, though.
+        - getLegumesScenario:
+            - randomInt: pageIndex <- 1 .. 99
+            - httpRequest:
+                GET: /legumes?pageIndex=${pageIndex}
+                authority: localhost:8080
+                handler:
+                  # We'll check that the response was successful (status 200-299)
+                  status:
+                    range: 2xx
+                  # When the response is fully processed we'll set variable `completed`
+                  # in the session.
+                  onCompletion:
+                    set: completed <- yes
+                # For demonstration purposes we will set `sync: false`.
+                # Next step is executed immediately after we fire the request, not
+                # waiting for the response.
+                # sync: false
+            - awaitVar: completed
+        - getHeroesScenario:
+            - randomInt: pageIndex <- 1 .. 99
+            - httpRequest:
+                GET: /heroes?pageIndex=${pageIndex}
+                authority: localhost:8081
+                handler:
+                  # We'll check that the response was successful (status 200-299)
+                  status:
+                    range: 2xx
+                  # When the response is fully processed we'll set variable `completed`
+                  # in the session.
+                  onCompletion:
+                    set: completed <- yes
+                # For demonstration purposes we will set `sync: false`.
+                # Next step is executed immediately after we fire the request, not
+                # waiting for the response.
+                # sync: false
+            - awaitVar: completed
