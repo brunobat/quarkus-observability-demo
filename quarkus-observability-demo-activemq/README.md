@@ -32,8 +32,7 @@ mvn install
 ```
 ### Start infrastructure with Docker Compose
 
-The easiest way to run the the entire system is to use `docker-compose`. This will run the apps, plus some
-required infrastructure, like a postgreSQL database and the Artemis message broker.
+The easiest way to run the the entire system is to use `docker-compose`. This will run the required infrastructure, like a postgreSQL database, the Artemis message broker and Jaeger for observability.
 
 ```bash
 cd ../docker-compose/basic-with-artemis
@@ -45,6 +44,8 @@ And then you can use the following command to remove all the containers:
 ```bash
 docker compose down
 ```
+
+There is an addicional docker compose file in the `quarkus-observability-demo-activemq` folder thar includes a full setup including the the apps as well.
 ### Start the services 
 
 We can use the quarkus dev mode to run the services:

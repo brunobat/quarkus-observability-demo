@@ -1,0 +1,70 @@
+version: "3"
+
+networks:
+  default:
+    name: hyperfoil-test
+    driver: bridge
+
+services:
+
+  database:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_PASSWORD: changeit
+      POSTGRES_USER: pguser
+      POSTGRES_DB: test
+    ports:
+      - '5432:5432'
+
+  # Jaeger
+  jaeger-all-in-one:
+    image: jaegertracing/all-in-one:1.41.0
+    ports:
+      - "16686:16686" # Jaeger UI
+      - "14268:14268" # receive legacy OpenTracing traces, optional
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP HTTP receiver, not yet used by Quarkus, optional
+      - "14250:14250" # receive from external otel-collector, optional
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+
+  artemis:
+    image: quay.io/artemiscloud/activemq-artemis-broker:1.0.6
+    environment:
+      AMQ_USER: quarkus
+      AMQ_PASSWORD: quarkus
+    ports:
+      - "8161:8161"
+      - "61616:61616"
+      - "5672:5672"
+
+  legume-service:
+    build:
+      context: ./quarkus-observability-demo-activemq-legume/
+      dockerfile: src/main/docker/Dockerfile.jvm
+    environment:
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://database:5432/test?current_schema=public
+      QUARKUS_OPENTELEMETRY_TRACER_EXPORTER_OTLP_ENDPOINT: http://jaeger-all-in-one:4317
+      QUARKUS_ARTEMIS_URL: tcp://artemis:61616
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+      - artemis
+      - jaeger-all-in-one
+
+  superhero-service:
+    build:
+      context: ./quarkus-observability-demo-activemq-superhero/
+      dockerfile: src/main/docker/Dockerfile.jvm
+    environment:
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://database:5432/test?current_schema=public
+      QUARKUS_OPENTELEMETRY_TRACER_EXPORTER_OTLP_ENDPOINT: http://jaeger-all-in-one:4317
+      QUARKUS_ARTEMIS_URL: tcp://artemis:61616
+    ports:
+      - "8081:8081"
+    depends_on:
+      - database
+      - artemis
+      - jaeger-all-in-one
+      - legume-service
