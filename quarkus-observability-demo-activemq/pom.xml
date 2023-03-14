@@ -19,7 +19,7 @@
     </modules>
 
     <properties>
-        <quarkus-artemis-bom.version>1.1.1</quarkus-artemis-bom.version>
+        <quarkus-artemis-bom.version>2.1.0</quarkus-artemis-bom.version>
     </properties>
 
 </project>

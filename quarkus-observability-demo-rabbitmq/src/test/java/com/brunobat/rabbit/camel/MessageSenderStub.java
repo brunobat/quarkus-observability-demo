@@ -3,9 +3,9 @@ package com.brunobat.rabbit.camel;
 
 import com.brunobat.rabbit.data.LegumeItem;
 
-import javax.annotation.Priority;
-import javax.enterprise.inject.Alternative;
-import javax.inject.Singleton;
+import jakarta.annotation.Priority;
+import jakarta.enterprise.inject.Alternative;
+import jakarta.inject.Singleton;
 
 @Alternative
 @Priority(1)
