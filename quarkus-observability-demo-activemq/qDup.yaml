@@ -38,12 +38,12 @@ scripts:
           else:
             - abort: Failed to build observability Benchmark
 
-    - sh: cp -r quarkus-observability-demo-activemq-legume/target/quarkus-app ${{WORKDIR}}/observability-demo/legume/
+    - sh: cp -r quarkus-observability-demo-activemq/quarkus-observability-demo-activemq-legume/target/quarkus-app ${{WORKDIR}}/observability-demo/legume/
       then:
         - regex: No such file or directory
           then:
             - abort: Failed to copy observability benchmark
-    - sh: cp -r quarkus-observability-demo-activemq-superhero/target/quarkus-app ${{WORKDIR}}/observability-demo/superhero/
+    - sh: cp -r quarkus-observability-demo-activemq/quarkus-observability-demo-activemq-superhero/target/quarkus-app ${{WORKDIR}}/observability-demo/superhero/
       then:
         - regex: No such file or directory
           then:
@@ -162,6 +162,37 @@ scripts:
         - sh: ${{CONTAINER_ENGINE}} container stop observability-demo-postgres
         - sh: ${{CONTAINER_ENGINE}} container rm observability-demo-postgres
 
+  # Jaeger setup
+
+  start-jaeger:
+    - sh:
+        ${{CONTAINER_ENGINE}} run --detach --cpuset-cpus ${{JAEGER_CPUS}} -p 16686:16686 -p 14268:14268 -p 4317:4317 -p 4318:4318 -p 14250:14250 --name observability-demo-jaeger
+        --env COLLECTOR_OTLP_ENABLED=true
+        jaegertracing/all-in-one:${{JAEGER_VERSION:1.41.0}}
+
+  stop-jaeger:
+    - sh: ${{CONTAINER_ENGINE}} container ls -a | grep observability-demo-jaeger
+    - regex: \w
+      then:
+        - sh: ${{CONTAINER_ENGINE}} container stop observability-demo-jaeger
+        - sh: ${{CONTAINER_ENGINE}} container rm observability-demo-jaeger
+
+  # Artemis Broker setup
+
+  start-artemis-broker:
+    - sh:
+        ${{CONTAINER_ENGINE}} run --detach --cpuset-cpus ${{ARTEMIS_CPUS}} -p 8161:8161 -p 61616:61616 -p 5672:5672 --name observability-demo-artemis
+        --env AMQ_USER=quarkus
+        --env AMQ_PASSWORD=quarkus
+        quay.io/artemiscloud/activemq-artemis-broker:${{ARTEMIS_BROKER_VERSION:1.41.0}}
+
+  stop-artemis-broker:
+    - sh: ${{CONTAINER_ENGINE}} container ls -a | grep observability-demo-artemis
+    - regex: \w
+      then:
+        - sh: ${{CONTAINER_ENGINE}} container stop observability-demo-artemis
+        - sh: ${{CONTAINER_ENGINE}} container rm observability-demo-artemis
+
   # Benchmark run --------------------------------------------------------------------------------------------------------------
 
   run-observability-demo:
@@ -210,7 +241,7 @@ scripts:
     - add-prompt: "]$ " # Hyperfoil CLI session
     - sh: ${{WORKDIR}}/hyperfoil/hyperfoil-${{HYPERFOIL_VERSION}}/bin/cli.sh -XX:+UseNUMA
     - sh: start-local
-    - sh: upload ${{WORKDIR}}/hyperfoil/hyperfoil.yaml
+    - sh: upload ${{WORKDIR}}/hyperfoil/quarkus-activemq.hf.yaml
     - log: Hyperfoil is performing load test against ${{CURRENT_IMPLEMENTATION}}
     - sh: run quarkus-activemq
       silent: true
@@ -338,8 +369,14 @@ roles:
       - start-container-engine
       - stop-database # cleanup from previous bogus runs
       - start-database
+      - stop-jaeger
+      - start-jaeger
+      - stop-artemis-broker
+      - start-artemis-broker
     cleanup-scripts:
       - stop-database
+      - stop-jaeger
+      - stop-artemis-broker
       
 # State ------------------------------------------------------------------------------------------------------------------------
 
@@ -354,6 +391,8 @@ states:
   # Versions (leave empty for latest)
   HYPERFOIL_VERSION: 0.24
   POSTGRES_VERSION:
+  JAEGER_VERSION:
+  ARTEMIS_BROKER_VERSION:
 
   # [local / remote] either upload the artifacts built locally or build remotely
   BUILD_TYPE: remote
@@ -376,8 +415,10 @@ states:
   # CPU and memory restrictions
   SERVER_MEMORY:
   SERVER_CPUS: 0-1
-  DATABASE_CPUS: 5-8
+  DATABASE_CPUS: 5-7
   HYPERFOIL_CPUS: 2-4
+  JAEGER_CPUS: 5-7
+  ARTEMIS_CPUS: 5-7
 
   # Other options
-  SERVER_OPTS:
+  SERVER_OPTS:                      
