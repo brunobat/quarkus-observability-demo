@@ -184,7 +184,7 @@ scripts:
         ${{CONTAINER_ENGINE}} run --detach --cpuset-cpus ${{ARTEMIS_CPUS}} -p 8161:8161 -p 61616:61616 -p 5672:5672 --name observability-demo-artemis
         --env AMQ_USER=quarkus
         --env AMQ_PASSWORD=quarkus
-        quay.io/artemiscloud/activemq-artemis-broker:${{ARTEMIS_BROKER_VERSION:1.41.0}}
+        quay.io/artemiscloud/activemq-artemis-broker:${{ARTEMIS_BROKER_VERSION:1.0.6}}
 
   stop-artemis-broker:
     - sh: ${{CONTAINER_ENGINE}} container ls -a | grep observability-demo-artemis
@@ -195,26 +195,56 @@ scripts:
 
   # Benchmark run --------------------------------------------------------------------------------------------------------------
 
-  run-observability-demo:
+  run-observability-superhero-demo:
     - script: sdk-select-jdk
-    - sleep: 15s # allow for monitoring and profiling to startup
     - set-state: RUN.CURRENT_IMPLEMENTATION observability-off
-    - script: run-quarkus
-
-    - sleep: 15s # allow for monitoring and profiling to restart
+    - sleep: 10s # allow for monitoring and profiling to startup
+    - script: run-superhero
     - set-state: RUN.CURRENT_IMPLEMENTATION observability-on
-    - script: run-quarkus
+    - sleep: 10s # allow for monitoring and profiling to restart
+    - script: run-superhero
 
-    - signal: BENCHMARK_DONE
-
-  run-quarkus:
+  run-superhero:
     - sh: cd ${{WORKDIR}}/observability-demo/superhero
     - set-signal: HYPERFOIL_DONE 1
     - sh: export JAVA_OPTS=""
+    - read-state: ${{CURRENT_IMPLEMENTATION}}
+      then:
+        - regex: observability-off
+          then:
+            - sh: JAVA_OPTS="$JAVA_OPTS -Dquarkus.opentelemetry.enabled=false -Dquarkus.opentelemetry.tracer.enabled=false"
     - read-state: ${{SERVER_MEMORY}}
       then:
         - sh: JAVA_OPTS="$JAVA_OPTS -Xms${{SERVER_MEMORY}} -Xmx${{SERVER_MEMORY}}"
-    - sh: taskset --cpu-list ${{SERVER_CPUS}} java -XX:+UseNUMA -Dobservability-server-process $JAVA_OPTS ${{SERVER_OPTS}} -jar quarkus-run.jar
+    - sh: taskset --cpu-list ${{SERVER_CPUS}} java -XX:+UseNUMA -Dobservability-superhero-process $JAVA_OPTS ${{SERVER_OPTS}} -jar quarkus-run.jar
+      idle-timer: 5m
+      on-signal:
+        HYPERFOIL_DONE:
+          - ctrlC:
+
+  run-observability-legume-demo:
+    - script: sdk-select-jdk
+    - set-state: RUN.CURRENT_IMPLEMENTATION observability-off
+    - sleep: 15s # allow for monitoring and profiling to startup
+    - script: run-legume
+    - set-state: RUN.CURRENT_IMPLEMENTATION observability-on
+    - sleep: 15s # allow for monitoring and profiling to restart
+    - script: run-legume
+    - signal: BENCHMARK_DONE
+
+  run-legume:
+    - sh: cd ${{WORKDIR}}/observability-demo/legume
+    - set-signal: HYPERFOIL_DONE 1
+    - sh: export JAVA_OPTS=""
+    - read-state: ${{CURRENT_IMPLEMENTATION}}
+      then:
+        - regex: observability-off
+          then:
+            - sh: JAVA_OPTS="$JAVA_OPTS -Dquarkus.opentelemetry.enabled=false -Dquarkus.opentelemetry.tracer.enabled=false"
+    - read-state: ${{SERVER_MEMORY}}
+      then:
+        - sh: JAVA_OPTS="$JAVA_OPTS -Xms${{SERVER_MEMORY}} -Xmx${{SERVER_MEMORY}}"
+    - sh: taskset --cpu-list ${{SERVER_CPUS}} java -XX:+UseNUMA -Dobservability-legume-process $JAVA_OPTS ${{SERVER_OPTS}} -jar quarkus-run.jar
       idle-timer: 5m
       on-signal:
         HYPERFOIL_DONE:
@@ -235,7 +265,7 @@ scripts:
         - wait-for: OBSERVABILITY_READY
         - script: perform-hyperfoil-load-test
         - signal: HYPERFOIL_DONE
-        - sleep: 1s # allow time for BENCHMARK_DONE to be set
+        - sleep: 5s # allow time for BENCHMARK_DONE to be set
 
   perform-hyperfoil-load-test:
     - add-prompt: "]$ " # Hyperfoil CLI session
@@ -277,7 +307,7 @@ scripts:
       then:
         - set-signal: OBSERVABILITY_READY 1
         - wait-for: OBSERVABILITY_READY
-        - sh: ps --format pid,cmd x | grep observability-server-process | grep java | awk '{print $1}'
+        - sh: ps --format pid,cmd x | grep observability-legume-process | grep java | awk '{print $1}'
         - set-state: SERVER_PID
         - read-state: ${{PROFILER}}
           then:
@@ -308,7 +338,7 @@ scripts:
       then:
         - set-signal: OBSERVABILITY_READY 1
         - wait-for: OBSERVABILITY_READY
-        - sh: ps --format pid,cmd x | grep observability-server-process | grep java | awk '{print $1}'
+        - sh: ps --format pid,cmd x | grep observability-legume-process | grep java | awk '{print $1}'
         - set-state: SERVER_PID
         - sh: sudo pmap -x ${{SERVER_PID}} >> ${{WORKDIR}}/monitoring/${{CURRENT_IMPLEMENTATION}}-pmap.txt
         - sh: |
@@ -347,7 +377,8 @@ roles:
       - build-observability-demo
       - setup-profiling
     run-scripts:
-      - run-observability-demo
+      - run-observability-superhero-demo
+      - run-observability-legume-demo
       - server-monitoring
       - server-profiling
     cleanup-scripts:
@@ -421,4 +452,4 @@ states:
   ARTEMIS_CPUS: 5-7
 
   # Other options
-  SERVER_OPTS:                      
+  SERVER_OPTS:
