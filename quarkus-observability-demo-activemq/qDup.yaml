@@ -1,0 +1,383 @@
+name: Build and run Quarkus observability benchmark
+scripts:
+
+# Benchmark setup ------------------------------------------------------------------------------------------------------------
+
+  build-observability-demo:
+    - script: sdk-select-jdk
+    - sh: mkdir -p ${{WORKDIR}}/observability-demo
+    - read-state: ${{BUILD_TYPE}}
+      then:
+        - regex: local
+          then:
+            - script: build-observability-local
+        - regex: remote
+          then:
+            - script: build-observability-remote
+
+  build-observability-local:
+    - upload: ${{ENV.SCRIPT_DIR}}/quarkus-observability-demo-activemq-legume/target/quarkus-app ${{WORKDIR}}/observability-demo/legume/
+    - upload: ${{ENV.SCRIPT_DIR}}/quarkus-observability-demo-activemq-superhero/target/quarkus-app ${{WORKDIR}}/observability-demo/superhero/
+
+  build-observability-remote:
+    - script: sdk-install-maven
+    - sh: git clone -q ${{OBSERVABILITY_REPO_URL}} ${{WORKDIR}}/observability-demo-src && git -C ${{WORKDIR}}/observability-demo-src -c advice.detachedHead=false checkout ${{OBSERVABILITY_REPO_COMMIT:main}}
+    - sh: cd ${{WORKDIR}}/observability-demo-src
+    - sh: mkdir -p ${{WORKDIR}}/observability-demo-src/m2-repo
+    - read-state: ${{QUARKUS_REPO_COMMIT}}
+      then:
+        - script: build-custom-quarkus
+        - sh: cd ${{WORKDIR}}/observability-demo-src
+        - sh: mvn -B -q versions:set-property -Dproperty=quarkus.version -DnewVersion=${{QUARKUS_VERSION}} -Dmaven.repo.local=${{WORKDIR}}/observability-demo-src/m2-repo
+    - queue-download: observability-demo-maven.txt
+    - log: Building observability demo benchmark from source ${{OBSERVABILITY_REPO_URL}} @ ${{OBSERVABILITY_REPO_COMMIT:main}}
+    - sh: mvn -B package -DskipTests -Dmaven.repo.local=${{WORKDIR}}/observability-demo-src/m2-repo | tee observability-demo-maven.txt | grep -e "BUILD SUCCESS"
+      idle-timer: 5m
+      then:
+        - regex: BUILD SUCCESS
+          else:
+            - abort: Failed to build observability Benchmark
+
+    - sh: cp -r quarkus-observability-demo-activemq-legume/target/quarkus-app ${{WORKDIR}}/observability-demo/legume/
+      then:
+        - regex: No such file or directory
+          then:
+            - abort: Failed to copy observability benchmark
+    - sh: cp -r quarkus-observability-demo-activemq-superhero/target/quarkus-app ${{WORKDIR}}/observability-demo/superhero/
+      then:
+        - regex: No such file or directory
+          then:
+            - abort: Failed to copy observability benchmark
+
+  build-custom-quarkus:
+    - sh: git clone -q ${{QUARKUS_REPO_URL}} ${{WORKDIR}}/observability-demo-src/custom-quarkus && git -C ${{WORKDIR}}/observability-demo-src/custom-quarkus -c advice.detachedHead=false checkout ${{QUARKUS_REPO_COMMIT}}
+    - sh: cd ${{WORKDIR}}/observability-demo-src/custom-quarkus
+    - queue-download: quarkus-maven.txt
+    - log: Building quarkus from source ${{QUARKUS_REPO_URL}} @ ${{QUARKUS_REPO_COMMIT}}
+    - sh: MAVEN_OPTS="-Xmx8g" ./mvnw -Dquickly -Dmaven.repo.local=${{WORKDIR}}/observability-demo-src/m2-repo | tee quarkus-maven.txt | grep -e "BUILD SUCCESS"
+      idle-timer: 10m
+      then:
+        - regex: BUILD SUCCESS
+          then:
+            - sh: ./mvnw -B -q help:evaluate -Dexpression=project.version -DforceStdout -Dmaven.repo.local=${{WORKDIR}}/observability-demo-src/m2-repo
+            - set-state: QUARKUS_VERSION
+          else:
+            - abort: Failed to build Quarkus
+
+  cleanup-observability-demo:
+    - sh: rm -fr ${{WORKDIR}}/observability-demo-src
+    - sh: rm -fr ${{WORKDIR}}/observability-demo
+
+  # Tools
+
+  install-sdkman:
+    - sh: source ~/.sdkman/bin/sdkman-init.sh
+    - regex: No such file or directory
+      then:
+        - sh: curl -s https://get.sdkman.io/?rcupdate=false | bash
+          then:
+            - regex: Enjoy|SDKMAN found
+              else:
+                - abort: Failed to install SDKMAN
+        - sh: source ~/.sdkman/bin/sdkman-init.sh
+      else:
+        - sh: sdk selfupdate force
+          then:
+            - regex: Successfully upgraded SDKMAN
+              else:
+                - abort: Failed to upgrade SDKMAN
+
+  uninstall-sdkman:
+    - log: Leaving sdkman installed
+    # - sh: unset -f sdk
+    # - sh: rm -fr ~/.sdkman
+
+  sdk-select-jdk:
+    - sh:
+        command: sdk install java ${{JAVA_VERSION:19.0.2-open}}
+        prompt:
+          "set as default? (Y/n): ": Y
+    - sh: sdk use java ${{JAVA_VERSION:19.0.2-open}}
+    - sh: java -version
+
+  sdk-install-maven:
+    - sh: which mvn
+    - regex: no mvn in
+      then:
+        - sh:
+            command: sdk install maven ${{MAVEN_VERSION:3.8.7}}
+            prompt:
+              "set as default? (Y/n): ": Y
+    - sh: mvn -version
+
+  # Hyperfoil setup
+
+  get-hyperfoil:
+    - sh: mkdir -p ${{WORKDIR}}/hyperfoil
+    - sh: cd ${{WORKDIR}}/hyperfoil
+    - sh: wget -q -nc https://repo1.maven.org/maven2/io/hyperfoil/hyperfoil-distribution/${{HYPERFOIL_VERSION}}/hyperfoil-distribution-${{HYPERFOIL_VERSION}}.zip
+    - sh: unzip -q hyperfoil-distribution-${{HYPERFOIL_VERSION}}.zip
+    - sh: sed -i 's/^java/taskset --cpu-list ${{HYPERFOIL_CPUS}} &/' hyperfoil-${{HYPERFOIL_VERSION}}/bin/cli.sh
+
+    - read-state: ${{BUILD_TYPE}}
+      then:
+        - regex: local
+          then:
+            - upload: ${{ENV.SCRIPT_DIR}}/hyperfoil-scripts/quarkus-activemq.hf.yaml ${{WORKDIR}}/hyperfoil
+        - regex: remote
+          then:
+            - sh: wget -q -nc ${{OBSERVABILITY_REPO_URL}}/raw/${{OBSERVABILITY_REPO_COMMIT:main}}/quarkus-observability-demo-activemq/hyperfoil-scripts/quarkus-activemq.hf.yaml
+
+  cleanup-hyperfoil:
+    - sh: rm -fr ${{WORKDIR}}/hyperfoil
+
+  # Database setup
+
+  start-container-engine:
+    - read-state: ${{CONTAINER_ENGINE}}
+      then:
+        - regex: docker
+          then:
+            - sh: systemctl is-active docker
+            - regex: inactive
+              then:
+                - sh: sudo systemctl start docker # attempt to start docker daemon
+                - sh: systemctl is-active docker
+                - regex: inactive
+                  then:
+                    - abort: Failed to start docker daemon
+
+  start-database:
+    - sh:
+        ${{CONTAINER_ENGINE}} run --detach --cpuset-cpus ${{DATABASE_CPUS}} -p 5432:5432 --name observability-demo-postgres
+        --env POSTGRESQL_DATABASE=test
+        --env POSTGRESQL_USER=pguser
+        --env POSTGRESQL_PASSWORD=changeit
+        quay.io/centos7/postgresql-${{POSTGRES_VERSION:13}}-centos7:latest
+
+  stop-database:
+    - sh: ${{CONTAINER_ENGINE}} container ls -a | grep observability-demo-postgres
+    - regex: \w
+      then:
+        - sh: ${{CONTAINER_ENGINE}} container stop observability-demo-postgres
+        - sh: ${{CONTAINER_ENGINE}} container rm observability-demo-postgres
+
+  # Benchmark run --------------------------------------------------------------------------------------------------------------
+
+  run-observability-demo:
+    - script: sdk-select-jdk
+    - sleep: 15s # allow for monitoring and profiling to startup
+    - set-state: RUN.CURRENT_IMPLEMENTATION observability-off
+    - script: run-quarkus
+
+    - sleep: 15s # allow for monitoring and profiling to restart
+    - set-state: RUN.CURRENT_IMPLEMENTATION observability-on
+    - script: run-quarkus
+
+    - signal: BENCHMARK_DONE
+
+  run-quarkus:
+    - sh: cd ${{WORKDIR}}/observability-demo/superhero
+    - set-signal: HYPERFOIL_DONE 1
+    - sh: export JAVA_OPTS=""
+    - read-state: ${{SERVER_MEMORY}}
+      then:
+        - sh: JAVA_OPTS="$JAVA_OPTS -Xms${{SERVER_MEMORY}} -Xmx${{SERVER_MEMORY}}"
+    - sh: taskset --cpu-list ${{SERVER_CPUS}} java -XX:+UseNUMA -Dobservability-server-process $JAVA_OPTS ${{SERVER_OPTS}} -jar quarkus-run.jar
+      idle-timer: 5m
+      on-signal:
+        HYPERFOIL_DONE:
+          - ctrlC:
+      watch:
+        - regex: started
+          then:
+            - signal: OBSERVABILITY_READY
+
+  # HyperFoil run
+
+  run-hyperfoil:
+    - sh: mkdir -p ${{WORKDIR}}/hyperfoil/report
+    - queue-download: ${{WORKDIR}}/hyperfoil/report
+    - repeat-until: BENCHMARK_DONE
+      then:
+        - set-signal: OBSERVABILITY_READY 1
+        - wait-for: OBSERVABILITY_READY
+        - script: perform-hyperfoil-load-test
+        - signal: HYPERFOIL_DONE
+        - sleep: 1s # allow time for BENCHMARK_DONE to be set
+
+  perform-hyperfoil-load-test:
+    - add-prompt: "]$ " # Hyperfoil CLI session
+    - sh: ${{WORKDIR}}/hyperfoil/hyperfoil-${{HYPERFOIL_VERSION}}/bin/cli.sh -XX:+UseNUMA
+    - sh: start-local
+    - sh: upload ${{WORKDIR}}/hyperfoil/hyperfoil.yaml
+    - log: Hyperfoil is performing load test against ${{CURRENT_IMPLEMENTATION}}
+    - sh: run quarkus-activemq
+      silent: true
+    - sh: stats
+    - sh: export -y -d=${{WORKDIR}}/hyperfoil/report/${{CURRENT_IMPLEMENTATION}}-hyperfoil.json
+    - sh: report -y -d=${{WORKDIR}}/hyperfoil/report/${{CURRENT_IMPLEMENTATION}}-hyperfoil.html
+    - sh: exit # leave the Hyperfoil CLI session
+
+  # Profiling -----------------------------------------------------------------------------------------------------------------
+
+  setup-profiling:
+    - read-state: ${{PROFILER}}
+      then:
+        - regex: async-jfr
+          then:
+            - script: setup-async-profiler
+        - regex: async-flame
+          then:
+            - script: setup-async-profiler
+
+  setup-async-profiler:
+    - sh: sudo sysctl kernel.perf_event_paranoid=1
+    - sh: sudo sysctl kernel.kptr_restrict=0
+    - sh: cd ${{WORKDIR}}
+    - sh: git clone -q ${{ASYNC_PROFILER_REPO_URL}} ${{WORKDIR}}/async-profiler-src && git -C ${{WORKDIR}}/async-profiler-src -c advice.detachedHead=false checkout ${{ASYNC_PROFILER_REPO_COMMIT:master}}
+    - sh: cd ${{WORKDIR}}/async-profiler-src
+    - sh: make all
+
+  server-profiling:
+    - sh: mkdir -p ${{WORKDIR}}/profiling
+    - queue-download: ${{WORKDIR}}/profiling
+    - repeat-until: BENCHMARK_DONE
+      then:
+        - set-signal: OBSERVABILITY_READY 1
+        - wait-for: OBSERVABILITY_READY
+        - sh: ps --format pid,cmd x | grep observability-server-process | grep java | awk '{print $1}'
+        - set-state: SERVER_PID
+        - read-state: ${{PROFILER}}
+          then:
+            - regex: async-jfr
+              then:
+                - sh: ${{WORKDIR}}/async-profiler-src/profiler.sh start -o jfr -f ${{WORKDIR}}/profiling/${{CURRENT_IMPLEMENTATION}}-async.jfr ${{PROFILER_ARGS}} ${{SERVER_PID}}
+                - sh: ${{WORKDIR}}/async-profiler-src/profiler.sh status ${{SERVER_PID}}
+                - wait-for: HYPERFOIL_DONE
+                - sh: ${{WORKDIR}}/async-profiler-src/profiler.sh stop ${{SERVER_PID}} > ${{WORKDIR}}/profiling/${{CURRENT_IMPLEMENTATION}}-async.txt
+            - regex: async-flame
+              then:
+                - sh: ${{WORKDIR}}/async-profiler-src/profiler.sh start ${{PROFILER_ARGS}} ${{SERVER_PID}}
+                - sh: ${{WORKDIR}}/async-profiler-src/profiler.sh status ${{SERVER_PID}}
+                - wait-for: HYPERFOIL_DONE
+                - sh: ${{WORKDIR}}/async-profiler-src/profiler.sh stop -o flamegraph -f ${{WORKDIR}}/profiling/${{CURRENT_IMPLEMENTATION}}-async.html ${{SERVER_PID}}
+        - sleep: 1s # allow time for BENCHMARK_DONE to be set
+
+  cleanup-profiling:
+    - sh: rm -fr ${{WORKDIR}}/profiling
+    - sh: rm -fr ${{WORKDIR}}/async-profiler-src
+
+  # Monitoring -----------------------------------------------------------------------------------------------------------------
+
+  server-monitoring:
+    - sh: mkdir -p ${{WORKDIR}}/monitoring
+    - queue-download: ${{WORKDIR}}/monitoring
+    - repeat-until: BENCHMARK_DONE
+      then:
+        - set-signal: OBSERVABILITY_READY 1
+        - wait-for: OBSERVABILITY_READY
+        - sh: ps --format pid,cmd x | grep observability-server-process | grep java | awk '{print $1}'
+        - set-state: SERVER_PID
+        - sh: sudo pmap -x ${{SERVER_PID}} >> ${{WORKDIR}}/monitoring/${{CURRENT_IMPLEMENTATION}}-pmap.txt
+        - sh: |
+            while sleep 10 
+            do
+            # memory
+              date >> ${{WORKDIR}}/monitoring/${{CURRENT_IMPLEMENTATION}}-mem.txt
+              echo 'pmap=' $( sudo pmap -x ${{SERVER_PID}} | grep total | awk '{print $4}' | sed 's/[^0-9]*//g' ) >> ${{WORKDIR}}/monitoring/${{CURRENT_IMPLEMENTATION}}-mem.txt
+              echo 'proc=' $( sudo cat /proc/${{SERVER_PID}}/status | grep VmRSS | awk '{print $2}' ) >> ${{WORKDIR}}/monitoring/${{CURRENT_IMPLEMENTATION}}-mem.txt
+              echo -e >> ${{WORKDIR}}/monitoring/${{CURRENT_IMPLEMENTATION}}-mem.txt
+            # cpu
+              date >> ${{WORKDIR}}/monitoring/${{CURRENT_IMPLEMENTATION}}-top.txt
+              top -b -d 1 -n 1 -1 -o +%CPU | head -80 >> ${{WORKDIR}}/monitoring/${{CURRENT_IMPLEMENTATION}}-top.txt
+              echo -e >> ${{WORKDIR}}/monitoring/${{CURRENT_IMPLEMENTATION}}-top.txt
+            done
+          on-signal:
+            HYPERFOIL_DONE:
+              - ctrlC:
+              - sleep: 1s # allow time for BENCHMARK_DONE to be set
+
+  cleanup-monitoring:
+    - sh: rm -fr ${{WORKDIR}}/monitoring
+
+# qDUP -------------------------------------------------------------------------------------------------------------------------
+
+hosts:
+  server: ${{USER}}@${{HOST}}
+  client: ${{USER}}@${{HOST}}
+  database: ${{USER}}@${{HOST}}
+
+roles:
+  server:
+    hosts: [ server ]
+    setup-scripts:
+      - install-sdkman
+      - build-observability-demo
+      - setup-profiling
+    run-scripts:
+      - run-observability-demo
+      - server-monitoring
+      - server-profiling
+    cleanup-scripts:
+      - uninstall-sdkman
+      - cleanup-observability-demo
+      - cleanup-monitoring
+      - cleanup-profiling
+  client:
+    hosts: [ client ]
+    setup-scripts:
+      - get-hyperfoil
+    run-scripts:
+      - run-hyperfoil
+    cleanup-scripts:
+      - cleanup-hyperfoil
+  database:
+    hosts: [ database ]
+    setup-scripts:
+      - start-container-engine
+      - stop-database # cleanup from previous bogus runs
+      - start-database
+    cleanup-scripts:
+      - stop-database
+      
+# State ------------------------------------------------------------------------------------------------------------------------
+
+states:
+  USER: me
+  HOST: localhost
+  WORKDIR: /tmp/quarkus-observability-demo-workdir
+
+  # [docker / podman]
+  CONTAINER_ENGINE: docker
+
+  # Versions (leave empty for latest)
+  HYPERFOIL_VERSION: 0.24
+  POSTGRES_VERSION:
+
+  # [local / remote] either upload the artifacts built locally or build remotely
+  BUILD_TYPE: remote
+
+  # Git location for remote build
+  OBSERVABILITY_REPO_URL: https://github.com/brunobat/quarkus-observability-demo
+  OBSERVABILITY_REPO_COMMIT:
+
+  # Git location for custom quarkus build
+  QUARKUS_REPO_URL: https://github.com/quarkusio/quarkus
+  QUARKUS_REPO_COMMIT:
+
+  # Profiler
+  PROFILER:
+  PROFILER_ARGS:
+
+  ASYNC_PROFILER_REPO_URL: https://github.com/jvm-profiling-tools/async-profiler
+  ASYNC_PROFILER_REPO_COMMIT: v2.9
+
+  # CPU and memory restrictions
+  SERVER_MEMORY:
+  SERVER_CPUS: 0-1
+  DATABASE_CPUS: 5-8
+  HYPERFOIL_CPUS: 2-4
+
+  # Other options
+  SERVER_OPTS:
