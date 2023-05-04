@@ -11,6 +11,7 @@
 
     <modules>
         <module>quarkus-observability-demo-resteasy</module>
+<!--        waiting for camel rabbitmq compatibility      -->
 <!--        <module>quarkus-observability-demo-rabbitmq</module>-->
         <module>quarkus-observability-demo-activemq</module>
         <module>quarkus-observability-demo-micrometer</module>
@@ -18,18 +19,19 @@
     </modules>
 
     <properties>
-        <compiler-plugin.version>3.8.1</compiler-plugin.version>
+        <compiler-plugin.version>3.11.0</compiler-plugin.version>
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-        <quarkus.platform.version>2.14.2.Final</quarkus.platform.version>
-        <quarkus-micrometer-registry-otlp.version>2.11.0</quarkus-micrometer-registry-otlp.version>
-        <lombok.version>1.18.24</lombok.version>
-        <rest-assured.version>5.2.0</rest-assured.version>
+        <quarkus.platform.version>3.0.2.Final</quarkus.platform.version>
+        <quarkus-micrometer-registry-otlp.version>3.0.1</quarkus-micrometer-registry-otlp.version>
+        <quarkus-artemis-bom.version>3.0.0</quarkus-artemis-bom.version>
+        <lombok.version>1.18.26</lombok.version>
+        <rest-assured.version>5.3.0</rest-assured.version>
         <skipITs>true</skipITs>
-        <surefire-plugin.version>3.0.0-M7</surefire-plugin.version>
+        <surefire-plugin.version>3.0.0</surefire-plugin.version>
     </properties>
 
     <build>
@@ -37,7 +39,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.10.1</version>
+                <version>${compiler-plugin.version}</version>
                 <configuration>
                     <release>${maven.compiler.release}</release>
                 </configuration>

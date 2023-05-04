@@ -2,12 +2,12 @@ package com.brunobat.rest.message;
 
 import io.opentelemetry.instrumentation.api.instrumenter.messaging.MessagingAttributesGetter;
 
-import javax.annotation.Nullable;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.Queue;
-import javax.jms.Topic;
+import jakarta.annotation.Nullable;
+import jakarta.jms.Destination;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
+import jakarta.jms.Queue;
+import jakarta.jms.Topic;
 
 enum JmsAttributesGetter implements MessagingAttributesGetter<Message, Message> {
     INSTANCE;

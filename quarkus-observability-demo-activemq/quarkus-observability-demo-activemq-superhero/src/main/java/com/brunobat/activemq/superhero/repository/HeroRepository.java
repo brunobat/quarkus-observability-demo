@@ -3,9 +3,9 @@ package com.brunobat.activemq.superhero.repository;
 import com.brunobat.activemq.superhero.model.Hero;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 import java.util.List;
 
 @ApplicationScoped
