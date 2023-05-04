@@ -16,7 +16,7 @@ import jakarta.jms.JMSException;
 import jakarta.jms.Message;
 
 import static io.opentelemetry.instrumentation.api.instrumenter.messaging.MessageOperation.SEND;
-import static io.quarkus.opentelemetry.runtime.config.OpenTelemetryConfig.INSTRUMENTATION_NAME;
+import static io.quarkus.opentelemetry.runtime.config.build.OTelBuildConfig.INSTRUMENTATION_NAME;
 
 @ApplicationScoped
 @Slf4j

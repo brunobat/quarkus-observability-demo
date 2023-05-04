@@ -29,7 +29,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static io.opentelemetry.instrumentation.api.instrumenter.messaging.MessageOperation.PROCESS;
-import static io.quarkus.opentelemetry.runtime.config.OpenTelemetryConfig.INSTRUMENTATION_NAME;
+import static io.quarkus.opentelemetry.runtime.config.build.OTelBuildConfig.INSTRUMENTATION_NAME;
 import static jakarta.transaction.Transactional.TxType.REQUIRED;
 
 @ApplicationScoped

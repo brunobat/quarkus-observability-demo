@@ -2,6 +2,8 @@
 package com.brunobat.activemq.superhero.model;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,6 +36,7 @@ public class Hero {
     @NotEmpty
     private String originalName;
 
+    @Enumerated(EnumType.STRING)
     private CapeType capeType;
 }
 

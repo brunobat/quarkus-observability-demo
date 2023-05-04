@@ -18,8 +18,4 @@
         <module>quarkus-observability-demo-activemq-superhero</module>
     </modules>
 
-    <properties>
-        <quarkus-artemis-bom.version>2.1.0</quarkus-artemis-bom.version>
-    </properties>
-
 </project>
