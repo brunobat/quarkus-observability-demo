@@ -10,3 +10,6 @@ Working projects:
 * [quarkus-observability-demo-opentracing-shim](quarkus-observability-demo-opentracing-shim/README.md) - To show how to migrate from MicroProfile OpenTracing to OpenTelemetry. 
 
 Each project has a specific readme with instructions.
+
+Main is compatible with Quarkus 3.
+Branch 2.x is compatible with Quarkus 2.
