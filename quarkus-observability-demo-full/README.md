@@ -7,13 +7,16 @@ If the demo is too simple, it will not be very realistic, therefore this uses:
 * Postgres
 * OpenTelemetry
 * Micrometer
-* json logging
+* Json logging
 
 
 The application will send OTel traces and Micrometer metrics using the standard OTLP protocol.
 
 Logs will be sent to the console in json format, in production. On tests and devmode, classic text logs are used.
 
+JDBC spans are enabled by default.
+
+## How to run
 
 To build: `mvn clean install`
 
