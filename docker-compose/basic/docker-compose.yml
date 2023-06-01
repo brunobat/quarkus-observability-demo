@@ -22,6 +22,7 @@ services:
     command: ["--config=/etc/otel-collector-config.yaml"]
     volumes:
       - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+#      - ./otel-collector-config-tofile.yaml:/etc/otel-collector-config.yaml
     ports:
       - "13133:13133" # Health_check extension
       - "4317:4317"   # OTLP gRPC receiver
