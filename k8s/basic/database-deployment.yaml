@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: database
+  name: database
+  namespace: quarkus-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: database
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: database
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_DB
+              value: test
+            - name: POSTGRES_PASSWORD
+              value: changeit
+            - name: POSTGRES_USER
+              value: pguser
+          image: postgres:15
+          imagePullPolicy: "IfNotPresent"
+          name: database
+          ports:
+            - containerPort: 5432
+          resources: {}
+          volumeMounts:
+            - mountPath: /var/lib/postgresql
+              name: database-data
+              readOnly: false
+      restartPolicy: Always
+      volumes:
+        - name: database-data
+          emptyDir:
+            sizeLimit: 10Gi
+
+
+status: {}

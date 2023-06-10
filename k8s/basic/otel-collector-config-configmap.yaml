@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-collector-config
+  namespace: quarkus-demo
+data:
+  otel-collector-config.yaml: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: ${env:MY_POD_IP}:4317
+          http:
+            endpoint: ${env:MY_POD_IP}:4318
+      otlp/2:
+        protocols:
+          grpc:
+            endpoint: ${env:MY_POD_IP}:55680
+
+    exporters:
+      logging:
+        loglevel: debug
+      jaeger:
+        endpoint: jaeger-all-in-one:14250
+        tls:
+          insecure: true
+
+    processors:
+      batch:
+
+    extensions:
+      health_check:
+
+    service:
+      extensions: [health_check]
+      pipelines:
+        traces:
+          receivers: [otlp,otlp/2]
+          processors: [batch]
+          exporters: [jaeger]
+        metrics:
+          receivers: [ otlp,otlp/2 ]
+          processors: [ ]
+          exporters: [ logging ]

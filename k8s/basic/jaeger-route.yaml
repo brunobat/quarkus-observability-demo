@@ -1,0 +1,12 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: jaeger-all-in-one
+  namespace: quarkus-demo
+spec:
+  host: jaeger-all-in-one.apps.openshift-dev.nailedit.duckdns.org
+  port:
+    targetPort: web
+  to:
+    kind: Service
+    name: jaeger-all-in-one

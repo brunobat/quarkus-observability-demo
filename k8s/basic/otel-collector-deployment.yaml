@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: otel-collector
+  name: otel-collector
+  namespace: quarkus-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: otel-collector
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: otel-collector
+    spec:
+      containers:
+        - args:
+            - --config=/etc/otel-collector/otel-collector-config.yaml
+          image: otel/opentelemetry-collector:latest
+          name: otel-collector
+          ports:
+            - containerPort: 13133
+            - containerPort: 4317
+            - containerPort: 4318
+            - containerPort: 55680
+          env:
+            - name: MY_POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+          resources: {}
+          volumeMounts:
+            - mountPath: /etc/otel-collector
+              name: otel-collector-config-cm
+      restartPolicy: Always
+      volumes:
+        - name: otel-collector-config-cm
+          configMap:
+            name: otel-collector-config
+status: {}
