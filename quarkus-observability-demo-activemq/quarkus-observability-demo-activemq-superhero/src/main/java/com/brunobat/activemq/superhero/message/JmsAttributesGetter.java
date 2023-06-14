@@ -14,13 +14,13 @@ enum JmsAttributesGetter implements MessagingAttributesGetter<Message, Message> 
 
     @Nullable
     @Override
-    public String system(Message message) {
+    public String getSystem(Message message) {
         return "jms";
     }
 
     @Nullable
     @Override
-    public String destinationKind(Message message) {
+    public String getDestinationKind(Message message) {
         Destination jmsDestination = null;
         try {
             jmsDestination = message.getJMSDestination();
@@ -43,7 +43,7 @@ enum JmsAttributesGetter implements MessagingAttributesGetter<Message, Message> 
 
     @Nullable
     @Override
-    public String destination(Message message) {
+    public String getDestination(Message message) {
         Destination jmsDestination = null;
         try {
             jmsDestination = message.getJMSDestination();
@@ -73,31 +73,13 @@ enum JmsAttributesGetter implements MessagingAttributesGetter<Message, Message> 
     }
 
     @Override
-    public boolean temporaryDestination(Message message) {
+    public boolean isTemporaryDestination(Message message) {
         return false;
     }
 
     @Nullable
     @Override
-    public String protocol(Message message) {
-        return null;
-    }
-
-    @Nullable
-    @Override
-    public String protocolVersion(Message message) {
-        return null;
-    }
-
-    @Nullable
-    @Override
-    public String url(Message message) {
-        return null;
-    }
-
-    @Nullable
-    @Override
-    public String conversationId(Message message) {
+    public String getConversationId(Message message) {
         try {
             return message.getJMSCorrelationID();
         } catch (JMSException e) {
@@ -107,19 +89,19 @@ enum JmsAttributesGetter implements MessagingAttributesGetter<Message, Message> 
 
     @Nullable
     @Override
-    public Long messagePayloadSize(Message message) {
+    public Long getMessagePayloadSize(Message message) {
         return null;
     }
 
     @Nullable
     @Override
-    public Long messagePayloadCompressedSize(Message message) {
+    public Long getMessagePayloadCompressedSize(Message message) {
         return null;
     }
 
     @Nullable
     @Override
-    public String messageId(Message message, @Nullable Message message2) {
+    public String getMessageId(Message message, @Nullable Message message2) {
         return null;
     }
 }

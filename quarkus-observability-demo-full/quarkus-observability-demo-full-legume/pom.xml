@@ -6,10 +6,10 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.brunobat</groupId>
-        <artifactId>quarkus-observability-demo</artifactId>
+        <artifactId>quarkus-observability-demo-full-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <artifactId>quarkus-observability-demo-full</artifactId>
+    <artifactId>quarkus-observability-demo-full-legume</artifactId>
     <dependencyManagement>
         <dependencies>
             <dependency>
