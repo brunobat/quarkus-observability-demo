@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: otel-collector
+  name: otel-collector
+  namespace: quarkus-demo
+spec:
+  ports:
+    - name: "13133"
+      port: 13133
+      targetPort: 13133
+    - name: grpc
+      port: 4317
+      targetPort: 4317
+    - name: http
+      port: 4318
+      targetPort: 4318
+    - name: otlp2-grpc
+      port: 55680
+      targetPort: 55680
+  selector:
+    app.kubernetes.io/component: otel-collector
+status:
+  loadBalancer: {}
