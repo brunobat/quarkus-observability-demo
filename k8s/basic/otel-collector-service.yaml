@@ -19,6 +19,12 @@ spec:
     - name: otlp2-grpc
       port: 55680
       targetPort: 55680
+    - name: metrics
+      port: 8888
+      targetPort: 8888
+    - name: prometheus-exporter
+      port: 8889
+      targetPort: 8889
   selector:
     app.kubernetes.io/component: otel-collector
 status:

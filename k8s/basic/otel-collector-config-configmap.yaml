@@ -24,6 +24,9 @@ data:
         endpoint: jaeger-all-in-one:14250
         tls:
           insecure: true
+      prometheus:
+        endpoint: 0.0.0.0:8889
+        namespace: quarkus_demo
 
     processors:
       batch:
@@ -41,4 +44,4 @@ data:
         metrics:
           receivers: [ otlp,otlp/2 ]
           processors: [ ]
-          exporters: [ logging ]
+          exporters: [ logging,prometheus ]
