@@ -24,9 +24,11 @@ spec:
           name: otel-collector
           ports:
             - containerPort: 13133
-            - containerPort: 4317
-            - containerPort: 4318
-            - containerPort: 55680
+            - containerPort: 4317 # grpc
+            - containerPort: 4318 # http
+            - containerPort: 55680 # otlp2-grpc
+            - containerPort: 8888 # metrics
+            - containerPort: 8889 # prometheus-exporter
           env:
             - name: MY_POD_IP
               valueFrom:
