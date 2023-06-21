@@ -2,17 +2,17 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   labels:
-    app.kubernetes.io/component: otel-collector
+    app.kubernetes.io/component: opentelemetry-collector
   name: otel-collector
   namespace: quarkus-demo
 spec:
   endpoints:
-  - interval: 30s
+  - interval: 10s
     port: metrics
     scheme: http
-  - interval: 30s
-    port: prometheus-exporter
+  - interval: 10s
+    port: monitoring
     scheme: http
   selector:
     matchLabels:
-      app.kubernetes.io/component: otel-collector
+      app.kubernetes.io/component: opentelemetry-collector
