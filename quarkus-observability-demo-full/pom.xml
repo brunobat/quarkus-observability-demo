@@ -15,7 +15,7 @@
 
     <modules>
         <module>quarkus-observability-demo-full-legume</module>
-<!--        <module>quarkus-observability-demo-full-superhero</module>-->
+        <module>quarkus-observability-demo-full-superhero</module>
     </modules>
 
 </project>
