@@ -1,14 +1,6 @@
 # Quarkus observability demo - full
 
-If the demo is too simple, it will not be very realistic, therefore this uses:
-* Resteasy
-* OpenAPI 
-* Hibernate
-* Postgres
-* OpenTelemetry
-* Micrometer
-* Json logging
-
+This demo consists of 2 services: legume and superhero.
 
 The application will send OTel traces and Micrometer metrics using the standard OTLP protocol.
 
@@ -16,14 +8,15 @@ Logs will be sent to the console in json format, in production. On tests and dev
 
 JDBC spans are enabled by default.
 
-## How to run
+
+## How to run using Docker Compose
 
 To build: `mvn clean install`
 
-To start the observability stack: 
+To start the observability stack:
 
 ```
-cd docker-compose/simple`
+cd docker-compose/basic`
 docker-compose up
 ```
 
@@ -41,7 +34,7 @@ Install the 2 operators in Openshift cluster:
 1. Red Hat OpenShift distributed tracing platform / Jaeger Operator
 2. Community OpenTelemetry Operator
 
-Go to the directory `k8s/basic` and setup the database, tracer and OpenTelemetry collector. 
+Go to the directory `k8s/basic` and setup the database, tracer and OpenTelemetry collector.
 ```
 # Database
 kubectl apply -f database-deployment.yaml
@@ -58,15 +51,16 @@ kubectl apply -f openshift/otel-collector-servicemonitor.yaml
 ```
 
 Build the container image:
-1. adjust the `quarkus.container-image.*` settings in `src/main/resources/application.properties` to your image registry.
+1. adjust the `quarkus.container-image.*` settings to your image registry in `src/main/resources/application.properties` of both modules (legume and superhero).
 2. build by `mvn clean install`
 
 Apply the manifests using `kubectl` or `oc`:
 ```
 # The generated manifests for deployment and service.
-kubectl apply -f target/kubernetes/kubernetes.yml
+kubectl apply -f quarkus-observability-demo-full-legume/target/kubernetes/kubernetes.yml
+kubectl apply -f quarkus-observability-demo-full-superhero/target/kubernetes/kubernetes.yml
 # The route in Openshift (work as an ingress in vanila Kubernetes)
-kubectl apply -f src/main/openshift/legume-route.yaml
+kubectl apply -f quarkus-observability-demo-full-legume/src/main/openshift/legume-route.yaml
 ```
 
 Now we should be able to see metrics in Observe->Metrics and check traces by accessing Jaeger UI defined in the route `src/main/openshift/legume-route.yaml`.
