@@ -1,1 +1,13 @@
 target/
+/quarkus-observability-demo-full/quarkus-observability-demo-full-superhero/quarkus-observability-demo-full-superhero.iml
+/quarkus-observability-demo-resteasy/.mvn/wrapper/maven-wrapper.jar
+/quarkus-observability-demo-rabbitmq/.mvn/wrapper/maven-wrapper.properties
+/quarkus-observability-demo-rabbitmq/.mvn/wrapper/MavenWrapperDownloader.java
+/.idea/.gitignore
+/.idea/compiler.xml
+/.idea/encodings.xml
+/.idea/jarRepositories.xml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/uiDesigner.xml
+/.idea/vcs.xml

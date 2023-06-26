@@ -1,14 +1,12 @@
 package com.brunobat.full.resource;
 
 
-import com.brunobat.full.client.FooClient;
+import com.brunobat.full.client.SuperHeroClient;
 import com.brunobat.full.data.LegumeItem;
 import com.brunobat.full.data.LegumeNew;
 import com.brunobat.full.model.Legume;
-import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.config.Config;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -17,6 +15,8 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +35,10 @@ public class LegumeResource implements LegumeApi{
     @Inject
     Config config;
 
-    @Transactional
+//    @Inject
+    @RestClient
+    SuperHeroClient superHeroClient;
+
     public Response provision() {
         final LegumeNew carrot = LegumeNew.builder()
                 .name("Carrot")
@@ -46,8 +49,8 @@ public class LegumeResource implements LegumeApi{
                 .description("Summer squash")
                 .build();
         return Response.status(CREATED).entity(asList(
-                addLegume(carrot),
-                addLegume(zucchini))).build();
+                add(carrot),
+                add(zucchini))).build();
     }
 
     @Transactional
@@ -92,6 +95,8 @@ public class LegumeResource implements LegumeApi{
                 .name(addedLegume.getName())
                 .description(addedLegume.getDescription())
                 .build();
+
+        superHeroClient.notifyAdd(addedLegume.getName());
 
         return legumeItem;
     }
