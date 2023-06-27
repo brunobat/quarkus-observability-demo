@@ -16,7 +16,7 @@ To build: `mvn clean install`
 To start the observability stack:
 
 ```
-cd docker-compose/basic`
+cd docker-compose/basic_with_prometheus
 docker-compose up
 ```
 

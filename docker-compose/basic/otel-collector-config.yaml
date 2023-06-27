@@ -17,9 +17,6 @@ exporters:
     endpoint: jaeger-all-in-one:14250
     tls:
       insecure: true
-  prometheus:
-    endpoint: otel-collector:8889
-    namespace: default
 
 processors:
   batch:
@@ -35,6 +32,6 @@ service:
       processors: [batch]
       exporters: [jaeger]
     metrics:
-      receivers: [otlp, otlp/2]
-      processors: []
-      exporters: [logging]
+      receivers: [ otlp,otlp/2 ]
+      processors: [ ]
+      exporters: [ logging ]
