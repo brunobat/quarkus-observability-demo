@@ -31,10 +31,10 @@ service:
   extensions: [health_check]
   pipelines:
     traces:
-      receivers: [otlp,otlp/2]
+      receivers: [otlp, otlp/2]
       processors: [batch]
       exporters: [jaeger]
     metrics:
       receivers: [otlp, otlp/2]
       processors: []
-      exporters: [logging]
+      exporters: [logging, prometheus]
