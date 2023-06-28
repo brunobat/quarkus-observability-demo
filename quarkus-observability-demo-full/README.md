@@ -36,6 +36,9 @@ Install the 2 operators in Openshift cluster:
 
 Go to the directory `k8s/basic` and setup the database, tracer and OpenTelemetry collector.
 ```
+# Namespace
+kubectl apply -f quarkus-demo-namespace.yaml
+
 # Database
 kubectl apply -f database-deployment.yaml
 kubectl apply -f database-service.yaml
@@ -54,13 +57,15 @@ Build the container image:
 1. adjust the `quarkus.container-image.*` settings to your image registry in `src/main/resources/application.properties` of both modules (legume and superhero).
 2. build by `mvn clean install`
 
-Apply the manifests using `kubectl` or `oc`:
+Apply the manifests using `kubectl` or `oc`, in `quarkus-observability-demo-full` directory:
 ```
 # The generated manifests for deployment and service.
 kubectl apply -f quarkus-observability-demo-full-legume/target/kubernetes/kubernetes.yml
 kubectl apply -f quarkus-observability-demo-full-superhero/target/kubernetes/kubernetes.yml
 # The route in Openshift (work as an ingress in vanila Kubernetes)
+# modify the "host" of the route to the url of your cluster, for example: legume.mycluster.dev
 kubectl apply -f quarkus-observability-demo-full-legume/src/main/openshift/legume-route.yaml
+kubectl apply -f quarkus-observability-demo-full-superhero/src/main/openshift/superhero-route.yaml
 ```
 
 Now we should be able to see metrics in Observe->Metrics and check traces by accessing Jaeger UI defined in the route `src/main/openshift/legume-route.yaml`.
