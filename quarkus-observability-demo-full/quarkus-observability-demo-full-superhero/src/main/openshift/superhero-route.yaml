@@ -1,0 +1,18 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: quarkus
+    app.kubernetes.io/name: superhero
+    app.openshift.io/runtime: quarkus
+  name: superhero
+  namespace: quarkus-demo
+spec:
+  host: superhero.apps.openshift-dev.nailedit.duckdns.org
+  port:
+    targetPort: http
+  to:
+    kind: Service
+    name: superhero
+    weight: 100
+  wildcardPolicy: None
