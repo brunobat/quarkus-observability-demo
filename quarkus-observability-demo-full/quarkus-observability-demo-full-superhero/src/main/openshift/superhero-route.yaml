@@ -8,7 +8,7 @@ metadata:
   name: superhero
   namespace: quarkus-demo
 spec:
-  host: superhero.apps.openshift-dev.nailedit.duckdns.org
+  host: # <change me>
   port:
     targetPort: http
   to:
