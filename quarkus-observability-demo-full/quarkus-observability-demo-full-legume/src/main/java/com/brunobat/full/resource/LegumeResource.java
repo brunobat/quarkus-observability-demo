@@ -35,7 +35,6 @@ public class LegumeResource implements LegumeApi{
     @Inject
     Config config;
 
-//    @Inject
     @RestClient
     SuperHeroClient superHeroClient;
 
