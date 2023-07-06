@@ -8,7 +8,7 @@ metadata:
   name: legume
   namespace: quarkus-demo
 spec:
-  host: legume.apps.openshift-dev.nailedit.duckdns.org
+  host: # <change me>
   port:
     targetPort: http
   to:
