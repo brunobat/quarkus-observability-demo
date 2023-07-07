@@ -28,7 +28,7 @@ scripts:
       then:
         - script: build-custom-quarkus
         - sh: cd ${{WORKDIR}}/observability-demo-src
-        - sh: mvn -B -q versions:set-property -Dproperty=quarkus.version -DnewVersion=${{QUARKUS_VERSION}} -Dmaven.repo.local=${{WORKDIR}}/observability-demo-src/m2-repo
+        - sh: mvn -B -q versions:set-property -Dproperty=quarkus.platform.version -DnewVersion=${{QUARKUS_VERSION}} -Dmaven.repo.local=${{WORKDIR}}/observability-demo-src/m2-repo
     - queue-download: observability-demo-maven.txt
     - log: Building observability demo benchmark from source ${{OBSERVABILITY_REPO_URL}} @ ${{OBSERVABILITY_REPO_COMMIT:main}}
     - sh: mvn -B package -DskipTests -Dmaven.repo.local=${{WORKDIR}}/observability-demo-src/m2-repo | tee observability-demo-maven.txt | grep -e "BUILD SUCCESS"
