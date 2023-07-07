@@ -94,10 +94,10 @@ scripts:
 
   sdk-select-jdk:
     - sh:
-        command: sdk install java ${{JAVA_VERSION:19.0.2-open}}
+        command: sdk install java ${{JAVA_VERSION:17.0.7-tem}}
         prompt:
           "set as default? (Y/n): ": Y
-    - sh: sdk use java ${{JAVA_VERSION:19.0.2-open}}
+    - sh: sdk use java ${{JAVA_VERSION:17.0.7-tem}}
     - sh: java -version
 
   sdk-install-maven:
