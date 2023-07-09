@@ -47,6 +47,8 @@ Metrics will be displayed in the collector log.
 
 Red Hat's [OpenShift](https://www.redhat.com/en/technologies/cloud-computing/openshift) is a container orchestration platform based on Kubernetes. 
 
+[OKD](https://www.okd.io/) is the upstream project of Openshift. This demo can run on OKD, too. 
+
 We assume you have [kubectl installed](https://kubernetes.io/docs/tasks/tools/) to run commands against Kubernetes clusters. 
 
 You can have a cloud instance and skip to [Deploy on Openshift](#Deploy on Openshift) or you can install a local, single node (cluster) instance.
@@ -63,6 +65,9 @@ You will need an amd64 machine with at least 9GB of RAM, 4 CPU cores and 35GB of
 6. Go to the operator hub. 
 
 #### Deploy on Openshift
+
+Open Openshift web console, log in as an administrator.
+Switch to administrator view, go to the tab Operators -> OperatorHub.
 
 Install the 2 operators in Openshift cluster:
 1. Red Hat OpenShift distributed tracing platform / Jaeger Operator
@@ -98,7 +103,7 @@ The generated manifests for deployment and service:
 kubectl apply -f quarkus-observability-demo-full-legume/target/kubernetes/kubernetes.yml
 kubectl apply -f quarkus-observability-demo-full-superhero/target/kubernetes/kubernetes.yml
 ```
-The route in Openshift (work as an ingress in vanila Kubernetes), modify the "host" of the route in the `*-route.yaml` files to the url of your service, for example: `legume.apps-crc.testing`. 
+The route in Openshift works as an ingress in vanilla Kubernetes, modify the "host" of the route in the `src/main/openshift/*-route.yaml` files to the url of your service, for example: `legume.apps-crc.testing`. 
 
 Make sure you have a wildcard DNS entry for the services domain pointing to the cluster ingress router or add entries on your local hosts file.
 ```
@@ -106,4 +111,9 @@ kubectl apply -f quarkus-observability-demo-full-legume/src/main/openshift/legum
 kubectl apply -f quarkus-observability-demo-full-superhero/src/main/openshift/superhero-route.yaml
 ```
 
-Now we should be able to see metrics in Observe->Metrics and check traces by accessing Jaeger UI defined in the route `src/main/openshift/legume-route.yaml`.
+Now we should be able to see metrics in Observe->Metrics and check traces by accessing Jaeger UI  at the host address defined in the route `jaeger-all-in-one-inmemory`. 
+Use HTTPS when accessing the URL to Jaeger UI.
+Check 
+```
+kubectl get route jaeger-all-in-one-inmemory -n quarkus-demo -o jsonpath='{.spec.host}'
+```
