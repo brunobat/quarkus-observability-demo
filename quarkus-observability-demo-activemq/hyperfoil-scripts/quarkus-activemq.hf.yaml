@@ -5,9 +5,9 @@ name: quarkus-activemq
 # for all HTTP requests.
 http:
   - host: http://localhost:8080
-    sharedConnections: 30
+    sharedConnections: 300
   - host: http://localhost:8081
-    sharedConnections: 20
+    sharedConnections: 200
 phases:
   - rampup:
       increasingRate:
