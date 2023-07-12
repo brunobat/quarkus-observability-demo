@@ -271,7 +271,7 @@ scripts:
         - wait-for: OBSERVABILITY_READY
         - script: perform-hyperfoil-load-test
         - signal: HYPERFOIL_DONE
-        - sleep: 5s # allow time for BENCHMARK_DONE to be set
+        - sleep: 10s # allow time for BENCHMARK_DONE to be set
 
   perform-hyperfoil-load-test:
     - add-prompt: "]$ " # Hyperfoil CLI session
