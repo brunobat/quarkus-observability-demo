@@ -68,7 +68,7 @@ phases:
       constantRate:
         # users will be starting the scenario every second
         usersPerSec: 100
-        duration: 5m
+        duration: 2m
         startAfter: rampup
         scenario:
         # The only sequence in this scenario is called `test`.
