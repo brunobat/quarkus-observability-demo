@@ -10,6 +10,8 @@ Logs will be sent to the console in json format, in production. On tests and dev
 
 JDBC spans are enabled by default.
 
+The RivieraDev presentation is here: [RivieraDEV2023.pdf](..%2Fpresentations%2FRivieraDEV2023.pdf)
+
 ## Deployment
 
 We have two services:
