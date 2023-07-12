@@ -204,10 +204,10 @@ scripts:
   run-observability-superhero-demo:
     - script: sdk-select-jdk
     - set-state: RUN.CURRENT_IMPLEMENTATION observability-off
-    - sleep: 10s # allow for monitoring and profiling to startup
+    - sleep: 11s # allow for monitoring and profiling to restart
     - script: run-superhero
     - set-state: RUN.CURRENT_IMPLEMENTATION observability-on
-    - sleep: 10s # allow for monitoring and profiling to restart
+    - sleep: 11s # allow for monitoring and profiling to restart
     - script: run-superhero
 
   run-superhero:
@@ -222,7 +222,8 @@ scripts:
     - read-state: ${{SERVER_MEMORY}}
       then:
         - sh: JAVA_OPTS="$JAVA_OPTS -Xms${{SERVER_MEMORY}} -Xmx${{SERVER_MEMORY}}"
-    - sh: taskset --cpu-list ${{SERVER_CPUS}} java -XX:+UseNUMA -Dobservability-superhero-process $JAVA_OPTS ${{SERVER_OPTS}} -jar quarkus-run.jar
+    - queue-download: quarkus-superhero-${{RUN.CURRENT_IMPLEMENTATION}}.txt
+    - sh: taskset --cpu-list ${{SERVER_CPUS}} java -XX:+UseNUMA -Dobservability-superhero-process $JAVA_OPTS ${{SERVER_OPTS}} -jar quarkus-run.jar >> quarkus-superhero-${{RUN.CURRENT_IMPLEMENTATION}}.txt
       idle-timer: 5m
       on-signal:
         HYPERFOIL_DONE:
@@ -250,7 +251,8 @@ scripts:
     - read-state: ${{SERVER_MEMORY}}
       then:
         - sh: JAVA_OPTS="$JAVA_OPTS -Xms${{SERVER_MEMORY}} -Xmx${{SERVER_MEMORY}}"
-    - sh: taskset --cpu-list ${{SERVER_CPUS}} java -XX:+UseNUMA -Dobservability-legume-process $JAVA_OPTS ${{SERVER_OPTS}} -jar quarkus-run.jar
+    - queue-download: quarkus-legume-${{RUN.CURRENT_IMPLEMENTATION}}.txt
+    - sh: taskset --cpu-list ${{SERVER_CPUS}} java -XX:+UseNUMA -Dobservability-legume-process $JAVA_OPTS ${{SERVER_OPTS}} -jar quarkus-run.jar | tee quarkus-legume-${{RUN.CURRENT_IMPLEMENTATION}}.txt | grep started
       idle-timer: 5m
       on-signal:
         HYPERFOIL_DONE:
