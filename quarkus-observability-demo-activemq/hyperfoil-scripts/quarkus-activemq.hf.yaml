@@ -5,14 +5,14 @@ name: quarkus-activemq
 # for all HTTP requests.
 http:
   - host: http://localhost:8080
-    sharedConnections: 3000
+    sharedConnections: 300
   - host: http://localhost:8081
-    sharedConnections: 2000
+    sharedConnections: 200
 phases:
   - rampup:
       increasingRate:
         initialUsersPerSec: 1
-        targetUsersPerSec: 100
+        targetUsersPerSec: 10
         # We expect at most 200 users being active at one moment - see below
         maxSessions: 200
         duration: 1m
@@ -67,7 +67,7 @@ phases:
   - mainPhase:
       constantRate:
         # users will be starting the scenario every second
-        usersPerSec: 1000
+        usersPerSec: 100
         duration: 5m
         startAfter: rampup
         scenario:
