@@ -24,7 +24,7 @@ import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static jakarta.ws.rs.core.Response.Status.NO_CONTENT;
 
 @ApplicationScoped
-@Slf4j
+//@Slf4j
 public class LegumeResource implements LegumeApi {
 
     @Inject
@@ -64,7 +64,7 @@ public class LegumeResource implements LegumeApi {
     }
 
     public List<LegumeItem> list(int pageIndex) {
-        log.info("someone asked for a list for index: " + pageIndex);
+//        log.info("someone asked for a list for index: " + pageIndex);
         return repository.listLegumes(pageIndex)
                          .map(this::getLegumeItem)
                          .collect(Collectors.toList());

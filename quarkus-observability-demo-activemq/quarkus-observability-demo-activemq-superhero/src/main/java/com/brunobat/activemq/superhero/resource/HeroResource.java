@@ -13,7 +13,7 @@ import java.util.List;
 import static java.util.stream.Collectors.toList;
 
 @ApplicationScoped
-@Slf4j
+//@Slf4j
 public class HeroResource implements HeroApi {
 
     @Inject
@@ -21,7 +21,7 @@ public class HeroResource implements HeroApi {
 
     public List<HeroItem> list(final String originalName, int pageIndex) {
         if (originalName == null || originalName.isBlank()) {
-            log.info("someone asked for a list for index: " + pageIndex);
+//            log.info("someone asked for a list for index: " + pageIndex);
             return repository.listHeroes(pageIndex).stream()
                     .map(this::getHeroItem)
                     .collect(toList());

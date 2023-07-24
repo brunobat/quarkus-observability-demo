@@ -19,7 +19,7 @@ import static io.opentelemetry.instrumentation.api.instrumenter.messaging.Messag
 import static io.quarkus.opentelemetry.runtime.config.build.OTelBuildConfig.INSTRUMENTATION_NAME;
 
 @ApplicationScoped
-@Slf4j
+//@Slf4j
 public class MessageSender {
     @Inject
     ConnectionFactory connectionFactory;
@@ -54,7 +54,7 @@ public class MessageSender {
                             message.setObjectProperty(key, value);
                         } catch (JMSException e) {
                             // We don't want to abort because of this
-                            log.warn("fail to ser property on message: {}", key, e);
+//                            log.warn("fail to ser property on message: {}", key, e);
                         }
                     }
                 });
@@ -71,7 +71,7 @@ public class MessageSender {
                     .start(parentOtelContext, msg);
             jmsContext.createProducer()
                     .send(jmsContext.createQueue("heroes"), msg);
-            log.info("sent message: " + str);
+//            log.info("sent message: " + str);
             producerInstrumenter.end(spanContext,msg,null, null);
         }
     }

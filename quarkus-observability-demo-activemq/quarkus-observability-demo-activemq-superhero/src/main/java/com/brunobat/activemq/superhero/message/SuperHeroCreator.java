@@ -33,7 +33,7 @@ import static io.quarkus.opentelemetry.runtime.config.build.OTelBuildConfig.INST
 import static jakarta.transaction.Transactional.TxType.REQUIRED;
 
 @ApplicationScoped
-@Slf4j
+//@Slf4j
 public class SuperHeroCreator implements Runnable {
 
     private final ExecutorService scheduler = Executors.newSingleThreadExecutor();
@@ -90,7 +90,7 @@ public class SuperHeroCreator implements Runnable {
                         if (value instanceof String) {
                             return (String) value;
                         } else {
-                            log.debug("fail to get property from message: {}", key);
+//                            log.debug("fail to get property from message: {}", key);
                             return null;
                         }
                     }
@@ -143,7 +143,7 @@ public class SuperHeroCreator implements Runnable {
                 .build();
 
         final Hero createdHero = entityManager.merge(hero);
-        log.info("hero created: {}", createdHero);
+//        log.info("hero created: {}", createdHero);
         return createdHero;
     }
 }
