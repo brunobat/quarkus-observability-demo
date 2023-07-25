@@ -40,7 +40,7 @@ services:
       - jaeger-all-in-one
 
   artemis:
-    image: quay.io/artemiscloud/activemq-artemis-broker:1.0.6
+    image: quay.io/artemiscloud/activemq-artemis-broker:1.0.20
     environment:
       AMQ_USER: quarkus
       AMQ_PASSWORD: quarkus
