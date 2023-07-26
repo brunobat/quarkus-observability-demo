@@ -5,9 +5,7 @@ import com.brunobat.full.client.SuperHeroClient;
 import com.brunobat.full.data.LegumeItem;
 import com.brunobat.full.data.LegumeNew;
 import com.brunobat.full.model.Legume;
-import lombok.extern.slf4j.Slf4j;
-import org.eclipse.microprofile.config.Config;
-
+import io.opentelemetry.api.baggage.Baggage;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -15,25 +13,30 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.ws.rs.core.Response;
+import lombok.extern.slf4j.Slf4j;
+import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.Arrays.asList;
 import static jakarta.ws.rs.core.Response.Status.CREATED;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static jakarta.ws.rs.core.Response.Status.NO_CONTENT;
+import static java.util.Arrays.asList;
 
 @ApplicationScoped
 @Slf4j
-public class LegumeResource implements LegumeApi{
+public class LegumeResource implements LegumeApi {
 
     @Inject
     EntityManager manager;
 
     @Inject
     Config config;
+
+    @Inject
+    Baggage baggage;
 
     @RestClient
     SuperHeroClient superHeroClient;
@@ -95,6 +98,8 @@ public class LegumeResource implements LegumeApi{
                 .description(addedLegume.getDescription())
                 .build();
 
+        baggage.toBuilder().put("legumeId", legumeItem.getId()).build().makeCurrent();
+        log.info("legume: {}", legumeItem);
         superHeroClient.notifyAdd(addedLegume.getName());
 
         return legumeItem;

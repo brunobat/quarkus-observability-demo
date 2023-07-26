@@ -4,6 +4,7 @@ import com.brunobat.full.superhero.data.HeroItem;
 import com.brunobat.full.superhero.model.CapeType;
 import com.brunobat.full.superhero.model.Hero;
 import com.brunobat.full.superhero.repository.HeroRepository;
+import io.opentelemetry.api.baggage.Baggage;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,9 @@ public class HeroResource implements HeroApi {
 
     @Inject
     HeroRepository repository;
+
+    @Inject
+    Baggage baggage;
 
     public List<HeroItem> list(final String originalName, int pageIndex) {
         if (originalName == null || originalName.isBlank()) {
@@ -46,7 +50,8 @@ public class HeroResource implements HeroApi {
 
         final Hero createdHero = repository.create(hero);
         log.info("hero created: {}", createdHero);
-
+        baggage.asMap().forEach((k, v) -> log.info("baggage: {}={}", k, v.getValue()));
+        log.info("legumeId: {}", baggage.getEntryValue("legumeId"));
         return Response.status(CREATED)
                 .entity(HeroItem.builder()
                         .id(createdHero.getId())
