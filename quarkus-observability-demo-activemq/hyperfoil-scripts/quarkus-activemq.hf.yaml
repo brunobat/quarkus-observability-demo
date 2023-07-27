@@ -46,6 +46,24 @@ phases:
               # Next step is executed immediately after we fire the request, not
               # waiting for the response.																									
               # sync: false
+        - getLegumesScenario:
+            - randomInt: pageIndex <- 1 .. 99
+            - httpRequest:
+                GET: /legumes?pageIndex=${pageIndex}
+                authority: localhost:8080
+                handler:
+                  # We'll check that the response was successful (status 200-299)
+                  status:
+                    range: 2xx
+                  # When the response is fully processed we'll set variable `completed`
+                  # in the session.
+                  onCompletion:
+                    set: completed <- yes
+                # For demonstration purposes we will set `sync: false`.
+                # Next step is executed immediately after we fire the request, not
+                # waiting for the response.
+                # sync: false
+            - awaitVar: completed
         - getHeroesScenario:
             - randomInt: pageIndex <- 1 .. 9
             - httpRequest:
