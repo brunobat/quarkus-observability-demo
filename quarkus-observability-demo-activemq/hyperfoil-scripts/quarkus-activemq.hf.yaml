@@ -12,9 +12,9 @@ phases:
   - rampup:
       increasingRate:
         initialUsersPerSec: 1
-        targetUsersPerSec: 400
-        # We expect at most 400 users being active at one moment - see below
-        maxSessions: 400
+        targetUsersPerSec: 800
+        # We expect at most 800 users being active at one moment - see below
+        maxSessions: 800
         duration: 4m
         scenario:
         # The only sequence in this scenario is called `test`.
@@ -85,7 +85,7 @@ phases:
   - mainPhase:
       constantRate:
         # users will be starting the scenario every second
-        usersPerSec: 400
+        usersPerSec: 800
         duration: 6m
         startAfter: rampup
         scenario:
