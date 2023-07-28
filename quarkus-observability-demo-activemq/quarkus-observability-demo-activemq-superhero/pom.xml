@@ -60,6 +60,11 @@
             <artifactId>quarkus-artemis-jms</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.quarkiverse.messaginghub</groupId>
+            <artifactId>quarkus-pooled-jms</artifactId>
+            <version>${quarkus-pooled-jms.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>

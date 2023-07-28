@@ -29,6 +29,7 @@
         <quarkus.platform.version>3.2.0.Final</quarkus.platform.version>
         <quarkus-micrometer-registry-otlp.version>3.0.1</quarkus-micrometer-registry-otlp.version>
         <quarkus-artemis-bom.version>3.0.0</quarkus-artemis-bom.version>
+        <quarkus-pooled-jms.version>2.0.1</quarkus-pooled-jms.version>
         <lombok.version>1.18.26</lombok.version>
         <rest-assured.version>5.3.0</rest-assured.version>
         <skipITs>true</skipITs>
