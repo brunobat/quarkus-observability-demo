@@ -12,10 +12,10 @@ phases:
   - rampup:
       increasingRate:
         initialUsersPerSec: 1
-        targetUsersPerSec: 800
-        # We expect at most 800 users being active at one moment - see below
+        targetUsersPerSec: 1000
+        # We expect at most 1000 users being active at one moment - see below
         maxSessions: 1000
-        duration: 4m
+        duration: 6m
         scenario:
         # The only sequence in this scenario is called `test`.
         - createLegumesScenario:
@@ -85,7 +85,7 @@ phases:
   - mainPhase:
       constantRate:
         # users will be starting the scenario every second
-        usersPerSec: 800
+        usersPerSec: 1000
         duration: 6m
         startAfter: rampup
         scenario:
