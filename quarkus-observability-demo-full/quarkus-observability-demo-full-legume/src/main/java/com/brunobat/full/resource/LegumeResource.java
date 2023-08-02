@@ -6,6 +6,7 @@ import com.brunobat.full.data.LegumeItem;
 import com.brunobat.full.data.LegumeNew;
 import com.brunobat.full.model.Legume;
 import io.opentelemetry.api.baggage.Baggage;
+import io.opentelemetry.context.Scope;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -98,10 +99,10 @@ public class LegumeResource implements LegumeApi {
                 .description(addedLegume.getDescription())
                 .build();
 
-        baggage.toBuilder().put("legumeId", legumeItem.getId()).build().makeCurrent();
-        log.info("legume: {}", legumeItem);
-        superHeroClient.notifyAdd(addedLegume.getName());
-
+        try (final Scope scope = baggage.toBuilder().put("legumeId", legumeItem.getId()).build().makeCurrent()) {
+            log.info("legume: {}", legumeItem);
+            superHeroClient.notifyAdd(addedLegume.getName());
+        }
         return legumeItem;
     }
 }
