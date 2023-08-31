@@ -222,7 +222,7 @@ scripts:
       then:
         - regex: observability-off
           then:
-            - sh: JAVA_OPTS="$JAVA_OPTS -Dquarkus.opentelemetry.enabled=false -Dquarkus.opentelemetry.tracer.enabled=false"
+            - sh: JAVA_OPTS="$JAVA_OPTS -Dquarkus.otel.sdk.disabled=true -Dquarkus.opentelemetry.tracer.enabled=false"
     - read-state: ${{SERVER_MEMORY}}
       then:
         - sh: JAVA_OPTS="$JAVA_OPTS -Xms${{SERVER_MEMORY}} -Xmx${{SERVER_MEMORY}}"
