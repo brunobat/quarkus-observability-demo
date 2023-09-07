@@ -225,7 +225,7 @@ scripts:
             - sh: JAVA_OPTS="$JAVA_OPTS -Dquarkus.otel.sdk.disabled=true"
     - read-state: ${{SERVER_MEMORY}}
       then:
-        - sh: JAVA_OPTS="$JAVA_OPTS -Xms${{SERVER_MEMORY}} -Xmx${{SERVER_MEMORY}}"
+        - sh: JAVA_OPTS="$JAVA_OPTS -Xms${{SERVER_MEMORY}} -Xmx${{SERVER_MEMORY}} -Dquarkus.otel.tracer.exporter.otlp.endpoint=http://0.0.0.0:4317"
     - queue-download: quarkus-superhero-${{RUN.CURRENT_IMPLEMENTATION}}.txt
     - sh: taskset --cpu-list ${{SERVER_CPUS}} java -XX:+UseNUMA -Dobservability-superhero-process $JAVA_OPTS ${{SERVER_OPTS}} -jar quarkus-run.jar >> quarkus-superhero-${{RUN.CURRENT_IMPLEMENTATION}}.txt
       idle-timer: 5m
@@ -254,7 +254,7 @@ scripts:
             - sh: JAVA_OPTS="$JAVA_OPTS -Dquarkus.otel.sdk.disabled=true"
     - read-state: ${{SERVER_MEMORY}}
       then:
-        - sh: JAVA_OPTS="$JAVA_OPTS -Xms${{SERVER_MEMORY}} -Xmx${{SERVER_MEMORY}}"
+        - sh: JAVA_OPTS="$JAVA_OPTS -Xms${{SERVER_MEMORY}} -Xmx${{SERVER_MEMORY}} -Dquarkus.otel.tracer.exporter.otlp.endpoint=http://0.0.0.0:4317"
     - queue-download: quarkus-legume-${{RUN.CURRENT_IMPLEMENTATION}}.txt
     - sh: taskset --cpu-list ${{SERVER_CPUS}} java -XX:+UseNUMA -Dobservability-legume-process $JAVA_OPTS ${{SERVER_OPTS}} -jar quarkus-run.jar | tee quarkus-legume-${{RUN.CURRENT_IMPLEMENTATION}}.txt | grep started
       idle-timer: 5m
