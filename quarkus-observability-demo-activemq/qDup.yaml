@@ -179,7 +179,7 @@ scripts:
     - regex: \w
       then:
         - queue-download: observability-demo-jaeger.txt
-        - sh: ${{CONTAINER_ENGINE}} logs observability-demo-jaeger > observability-demo-jaeger.txt
+        - sh: ${{CONTAINER_ENGINE}} logs observability-demo-jaeger > observability-demo-jaeger.txt 2>&1
         - sh: ${{CONTAINER_ENGINE}} container stop observability-demo-jaeger
         - sh: ${{CONTAINER_ENGINE}} container rm observability-demo-jaeger
 
@@ -199,7 +199,7 @@ scripts:
     - regex: \w
       then:
         - queue-download: observability-demo-artemis.txt
-        - sh: ${{CONTAINER_ENGINE}} logs observability-demo-artemis > observability-demo-artemis.txt
+        - sh: ${{CONTAINER_ENGINE}} logs observability-demo-artemis > observability-demo-artemis.txt 2>&1
         - sh: ${{CONTAINER_ENGINE}} container stop observability-demo-artemis
         - sh: ${{CONTAINER_ENGINE}} container rm observability-demo-artemis
 
