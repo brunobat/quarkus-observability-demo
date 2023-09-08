@@ -164,6 +164,23 @@ scripts:
         - sh: ${{CONTAINER_ENGINE}} container stop observability-demo-postgres
         - sh: ${{CONTAINER_ENGINE}} container rm observability-demo-postgres
 
+  start-heroes-database:
+    - sh:
+        ${{CONTAINER_ENGINE}} run --detach --cpuset-cpus ${{DATABASE_HEROES_CPUS}} -p 5433:5432 --name observability-demo-postgres-heroes
+        --env POSTGRESQL_DATABASE=test
+        --env POSTGRESQL_USER=pguser
+        --env POSTGRESQL_PASSWORD=changeit
+        quay.io/centos7/postgresql-${{POSTGRES_VERSION:13}}-centos7:latest
+
+  stop-heroes-database:
+    - sh:
+        command: ${{CONTAINER_ENGINE}} container ls -a | grep observability-demo-postgres-heroes
+        ignore-exit-code: true
+    - regex: \w
+      then:
+        - sh: ${{CONTAINER_ENGINE}} container stop observability-demo-postgres-heroes
+        - sh: ${{CONTAINER_ENGINE}} container rm observability-demo-postgres-heroes
+
   # Jaeger setup
 
   start-jaeger:
@@ -217,7 +234,7 @@ scripts:
   run-superhero:
     - sh: cd ${{WORKDIR}}/observability-demo/superhero
     - set-signal: HYPERFOIL_DONE 1
-    - sh: export JAVA_OPTS=""
+    - sh: export JAVA_OPTS="-Dquarkus.datasource.jdbc.url=jdbc:postgresql://localhost:5433/test?current_schema=public"
     - read-state: ${{CURRENT_IMPLEMENTATION}}
       then:
         - regex: observability-off
@@ -380,6 +397,7 @@ hosts:
   server: ${{USER}}@${{HOST}}
   client: ${{USER}}@${{HOST}}
   database: ${{USER}}@${{HOST}}
+  database-heroes: ${{USER}}@${{HOST}}
 
 roles:
   server:
@@ -406,6 +424,14 @@ roles:
       - run-hyperfoil
     cleanup-scripts:
       - cleanup-hyperfoil
+  database-heroes:
+    hosts: [ database-heroes ]
+    setup-scripts:
+      - start-container-engine
+      - stop-heroes-database # cleanup from previous bogus runs
+      - start-heroes-database
+    cleanup-scripts:
+      - stop-heroes-database
   database:
     hosts: [ database ]
     setup-scripts:
@@ -459,6 +485,7 @@ states:
   SERVER_MEMORY:
   SERVER_CPUS: 0-1
   DATABASE_CPUS: 5-7
+  DATABASE_HEROES_CPUS: 5-7
   HYPERFOIL_CPUS: 2-4
   JAEGER_CPUS: 5-7
   ARTEMIS_CPUS: 5-7
