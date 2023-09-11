@@ -12,6 +12,7 @@ import jakarta.jms.ConnectionFactory;
 import jakarta.jms.JMSContext;
 import jakarta.jms.JMSException;
 import jakarta.jms.Message;
+import jakarta.transaction.Transactional;
 
 import static io.opentelemetry.instrumentation.api.instrumenter.messaging.MessageOperation.PUBLISH;
 import static io.quarkus.opentelemetry.runtime.config.build.OTelBuildConfig.INSTRUMENTATION_NAME;
@@ -59,6 +60,7 @@ public class MessageSender {
         return messageInstrumenter;
     }
 
+    @Transactional(Transactional.TxType.NOT_SUPPORTED)
     public void send(String str) {
         Context parentOtelContext = Context.current();
         Instrumenter<Message, Message> producerInstrumenter = getProducerInstrumenter(telemetry);
