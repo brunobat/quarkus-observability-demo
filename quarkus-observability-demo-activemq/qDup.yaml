@@ -384,10 +384,16 @@ scripts:
               echo 'pmap=' $( sudo pmap -x ${{SERVER_PID}} | grep total | awk '{print $4}' | sed 's/[^0-9]*//g' ) >> ${{WORKDIR}}/monitoring/${{CURRENT_IMPLEMENTATION}}-mem.txt
               echo 'proc=' $( sudo cat /proc/${{SERVER_PID}}/status | grep VmRSS | awk '{print $2}' ) >> ${{WORKDIR}}/monitoring/${{CURRENT_IMPLEMENTATION}}-mem.txt
               echo -e >> ${{WORKDIR}}/monitoring/${{CURRENT_IMPLEMENTATION}}-mem.txt
+            # irq
+              date >> ${{WORKDIR}}/monitoring/${{CURRENT_IMPLEMENTATION}}-interrupts.txt
+              cat /proc/interrupts >> ${{WORKDIR}}/monitoring/${{CURRENT_IMPLEMENTATION}}-interrupts.txt
+              echo -e >> ${{WORKDIR}}/monitoring/${{CURRENT_IMPLEMENTATION}}-interrupts.txt   
             # cpu
               date >> ${{WORKDIR}}/monitoring/${{CURRENT_IMPLEMENTATION}}-top.txt
               top -b -d 1 -n 1 -1 -o +%CPU | head -80 >> ${{WORKDIR}}/monitoring/${{CURRENT_IMPLEMENTATION}}-top.txt
               echo -e >> ${{WORKDIR}}/monitoring/${{CURRENT_IMPLEMENTATION}}-top.txt
+              mpstat -A >> ${{WORKDIR}}/monitoring/${{CURRENT_IMPLEMENTATION}}-mpstat.txt
+              echo -e >> ${{WORKDIR}}/monitoring/${{CURRENT_IMPLEMENTATION}}-mpstat.txt
             done
           on-signal:
             HYPERFOIL_DONE:
