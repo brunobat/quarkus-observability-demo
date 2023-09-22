@@ -358,6 +358,12 @@ scripts:
                 - sh: ${{WORKDIR}}/async-profiler-src/profiler.sh status ${{SERVER_PID}}
                 - wait-for: HYPERFOIL_DONE
                 - sh: ${{WORKDIR}}/async-profiler-src/profiler.sh stop -o flamegraph -f ${{WORKDIR}}/profiling/${{CURRENT_IMPLEMENTATION}}-async.html ${{SERVER_PID}}
+            - regex: perf-top
+              then:
+                - sh: sudo perf top ${{PROFILER_ARGS}} > ${{WORKDIR}}/profiling/${{CURRENT_IMPLEMENTATION}}-perf-top.txt
+                  on-signal:
+                    HYPERFOIL_DONE:
+                      - ctrlC:
         - sleep: 1s # allow time for BENCHMARK_DONE to be set
 
   cleanup-profiling:
