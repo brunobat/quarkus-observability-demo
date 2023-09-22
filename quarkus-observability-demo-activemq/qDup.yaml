@@ -147,26 +147,26 @@ scripts:
                   then:
                     - abort: Failed to start docker daemon
 
-  start-database:
+  start-legumes-database:
     - sh:
-        ${{CONTAINER_ENGINE}} run --detach --cpuset-cpus ${{DATABASE_CPUS}} -p 5432:5432 --name observability-demo-postgres
+        ${{CONTAINER_ENGINE}} run --detach --cpuset-cpus ${{LEGUMES_DATABASE_CPUS}} -p 5432:5432 --name observability-demo-postgres-legumes
         --env POSTGRESQL_DATABASE=test
         --env POSTGRESQL_USER=pguser
         --env POSTGRESQL_PASSWORD=changeit
         quay.io/centos7/postgresql-${{POSTGRES_VERSION:13}}-centos7:latest
 
-  stop-database:
+  stop-legumes-database:
     - sh:
-        command: ${{CONTAINER_ENGINE}} container ls -a | grep observability-demo-postgres
+        command: ${{CONTAINER_ENGINE}} container ls -a | grep observability-demo-postgres-legumes
         ignore-exit-code: true
     - regex: \w
       then:
-        - sh: ${{CONTAINER_ENGINE}} container stop observability-demo-postgres
-        - sh: ${{CONTAINER_ENGINE}} container rm observability-demo-postgres
+        - sh: ${{CONTAINER_ENGINE}} container stop observability-demo-postgres-legumes
+        - sh: ${{CONTAINER_ENGINE}} container rm observability-demo-postgres-legumes
 
   start-heroes-database:
     - sh:
-        ${{CONTAINER_ENGINE}} run --detach --cpuset-cpus ${{DATABASE_HEROES_CPUS}} -p 5433:5432 --name observability-demo-postgres-heroes
+        ${{CONTAINER_ENGINE}} run --detach --cpuset-cpus ${{HEROES_DATABASE_CPUS}} -p 5433:5432 --name observability-demo-postgres-heroes
         --env POSTGRESQL_DATABASE=test
         --env POSTGRESQL_USER=pguser
         --env POSTGRESQL_PASSWORD=changeit
@@ -396,8 +396,10 @@ scripts:
 hosts:
   server: ${{USER}}@${{HOST}}
   client: ${{USER}}@${{HOST}}
-  database: ${{USER}}@${{HOST}}
-  database-heroes: ${{USER}}@${{HOST}}
+  jaeger: ${{USER}}@${{HOST}}
+  artemis-broker: ${{USER}}@${{HOST}}
+  legumes-database: ${{USER}}@${{HOST}}
+  heroes-database: ${{USER}}@${{HOST}}
 
 roles:
   server:
@@ -424,28 +426,38 @@ roles:
       - run-hyperfoil
     cleanup-scripts:
       - cleanup-hyperfoil
-  database-heroes:
-    hosts: [ database-heroes ]
+  jaeger:
+    hosts: [ jaeger ]
+    setup-scripts:
+      - start-container-engine
+      - stop-jaeger # cleanup from previous bogus runs
+      - start-jaeger
+    cleanup-scripts:
+      - stop-jaeger
+  artemis-broker:
+    hosts: [ artemis-broker ]
+    setup-scripts:
+      - start-container-engine
+      - stop-artemis-broker # cleanup from previous bogus runs
+      - start-artemis-broker
+    cleanup-scripts:
+      - stop-artemis-broker
+  legumes-database:
+    hosts: [ legumes-database ]
+    setup-scripts:
+      - start-container-engine
+      - stop-legumes-database # cleanup from previous bogus runs
+      - start-legumes-database
+    cleanup-scripts:
+      - stop-legumes-database
+  heroes-database:
+    hosts: [ heroes-database ]
     setup-scripts:
       - start-container-engine
       - stop-heroes-database # cleanup from previous bogus runs
       - start-heroes-database
     cleanup-scripts:
       - stop-heroes-database
-  database:
-    hosts: [ database ]
-    setup-scripts:
-      - start-container-engine
-      - stop-database # cleanup from previous bogus runs
-      - start-database
-      - stop-jaeger
-      - start-jaeger
-      - stop-artemis-broker
-      - start-artemis-broker
-    cleanup-scripts:
-      - stop-database
-      - stop-jaeger
-      - stop-artemis-broker
       
 # State ------------------------------------------------------------------------------------------------------------------------
 
@@ -484,8 +496,8 @@ states:
   # CPU and memory restrictions
   SERVER_MEMORY:
   SERVER_CPUS: 0-1
-  DATABASE_CPUS: 5-7
-  DATABASE_HEROES_CPUS: 5-7
+  LEGUMES_DATABASE_CPUS: 5-7
+  HEROES_DATABASE_CPUS: 5-7
   HYPERFOIL_CPUS: 2-4
   JAEGER_CPUS: 5-7
   ARTEMIS_CPUS: 5-7
