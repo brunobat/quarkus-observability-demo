@@ -225,6 +225,8 @@ scripts:
   # Benchmark run --------------------------------------------------------------------------------------------------------------
 
   run-observability-superhero-demo:
+    - sh: hostname -I | cut -f 1 -d ' '
+    - set-state: ARTEMIS_BROKER_HOST
     - script: sdk-select-jdk
     - set-state: RUN.CURRENT_IMPLEMENTATION observability-off
     - sleep: 11s # allow for monitoring and profiling to restart
@@ -236,7 +238,7 @@ scripts:
   run-superhero:
     - sh: cd ${{WORKDIR}}/observability-demo/superhero
     - set-signal: HYPERFOIL_DONE 1
-    - sh: export JAVA_OPTS="-Dquarkus.datasource.jdbc.url=jdbc:postgresql://localhost:5433/test?current_schema=public"
+    - sh: export JAVA_OPTS="-Dquarkus.datasource.jdbc.url=jdbc:postgresql://localhost:5433/test?current_schema=public -Dquarkus.artemis.url=tcp://${{ARTEMIS_BROKER_HOST}}:61616"
     - read-state: ${{CURRENT_IMPLEMENTATION}}
       then:
         - regex: observability-off
@@ -253,6 +255,8 @@ scripts:
           - ctrlC:
 
   run-observability-legume-demo:
+    - sh: hostname -I | cut -f 1 -d ' '
+    - set-state: ARTEMIS_BROKER_HOST
     - script: sdk-select-jdk
     - set-state: RUN.CURRENT_IMPLEMENTATION observability-off
     - sleep: 15s # allow for monitoring and profiling to startup
@@ -265,7 +269,7 @@ scripts:
   run-legume:
     - sh: cd ${{WORKDIR}}/observability-demo/legume
     - set-signal: HYPERFOIL_DONE 1
-    - sh: export JAVA_OPTS=""
+    - sh: export JAVA_OPTS="-Dquarkus.artemis.url=tcp://${{ARTEMIS_BROKER_HOST}}:61616"
     - read-state: ${{CURRENT_IMPLEMENTATION}}
       then:
         - regex: observability-off
