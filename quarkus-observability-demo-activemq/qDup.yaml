@@ -149,10 +149,11 @@ scripts:
 
   start-legumes-database:
     - sh:
-        ${{CONTAINER_ENGINE}} run --detach --cpuset-cpus ${{LEGUMES_DATABASE_CPUS}} -p 5432:5432 --name observability-demo-postgres-legumes
+        ${{CONTAINER_ENGINE}} run --detach --cpuset-cpus ${{LEGUMES_DATABASE_CPUS}} --network host --name observability-demo-postgres-legumes
         --env POSTGRESQL_DATABASE=test
         --env POSTGRESQL_USER=pguser
         --env POSTGRESQL_PASSWORD=changeit
+        --env PGPORT=5432
         quay.io/centos7/postgresql-${{POSTGRES_VERSION:13}}-centos7:latest
 
   stop-legumes-database:
@@ -166,10 +167,11 @@ scripts:
 
   start-heroes-database:
     - sh:
-        ${{CONTAINER_ENGINE}} run --detach --cpuset-cpus ${{HEROES_DATABASE_CPUS}} -p 5433:5432 --name observability-demo-postgres-heroes
+        ${{CONTAINER_ENGINE}} run --detach --cpuset-cpus ${{HEROES_DATABASE_CPUS}} --network host --name observability-demo-postgres-heroes
         --env POSTGRESQL_DATABASE=test
         --env POSTGRESQL_USER=pguser
         --env POSTGRESQL_PASSWORD=changeit
+        --env PGPORT=5433
         quay.io/centos7/postgresql-${{POSTGRES_VERSION:13}}-centos7:latest
 
   stop-heroes-database:
@@ -185,7 +187,7 @@ scripts:
 
   start-jaeger:
     - sh:
-        ${{CONTAINER_ENGINE}} run --detach --cpuset-cpus ${{JAEGER_CPUS}} --memory 32g -p 16686:16686 -p 14268:14268 -p 4317:4317 -p 4318:4318 -p 14250:14250 --name observability-demo-jaeger
+        ${{CONTAINER_ENGINE}} run --detach --cpuset-cpus ${{JAEGER_CPUS}} --memory 32g --network host --name observability-demo-jaeger
         --env COLLECTOR_OTLP_ENABLED=true
         jaegertracing/all-in-one:${{JAEGER_VERSION:1.41.0}}
 
@@ -204,7 +206,7 @@ scripts:
 
   start-artemis-broker:
     - sh:
-        ${{CONTAINER_ENGINE}} run --detach --cpuset-cpus ${{ARTEMIS_CPUS}} --memory 8g -p 8161:8161 -p 61616:61616 -p 5672:5672 --name observability-demo-artemis
+        ${{CONTAINER_ENGINE}} run --detach --cpuset-cpus ${{ARTEMIS_CPUS}} --memory 8g --network host --name observability-demo-artemis
         --env AMQ_USER=quarkus
         --env AMQ_PASSWORD=quarkus
         quay.io/artemiscloud/activemq-artemis-broker:${{ARTEMIS_BROKER_VERSION:1.0.20}}
