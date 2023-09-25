@@ -320,15 +320,15 @@ scripts:
   setup-profiling:
     - read-state: ${{PROFILER}}
       then:
-        - regex: async-jfr
+        - regex: ^async-jfr
           then:
             - script: setup-async-profiler
-        - regex: async-flame
+        - regex: ^async-flame
           then:
             - script: setup-async-profiler
         - regex: broker-async-flame
           then:
-            - script: setup-async-profiler
+            - script: ^setup-async-profiler
 
   setup-async-profiler:
     - sh: sudo sysctl kernel.perf_event_paranoid=1
@@ -351,25 +351,25 @@ scripts:
         - set-state: BROKER_PID
         - read-state: ${{PROFILER}}
           then:
-            - regex: async-jfr
+            - regex: ^async-jfr
               then:
                 - sh: ${{WORKDIR}}/async-profiler-src/profiler.sh start -o jfr --jfrsync profile -f ${{WORKDIR}}/profiling/${{CURRENT_IMPLEMENTATION}}-async.jfr ${{PROFILER_ARGS}} ${{SERVER_PID}}
                 - sh: ${{WORKDIR}}/async-profiler-src/profiler.sh status ${{SERVER_PID}}
                 - wait-for: HYPERFOIL_DONE
                 - sh: ${{WORKDIR}}/async-profiler-src/profiler.sh stop ${{SERVER_PID}} > ${{WORKDIR}}/profiling/${{CURRENT_IMPLEMENTATION}}-async.txt
-            - regex: async-flame
+            - regex: ^async-flame
               then:
                 - sh: ${{WORKDIR}}/async-profiler-src/profiler.sh start ${{PROFILER_ARGS}} ${{SERVER_PID}}
                 - sh: ${{WORKDIR}}/async-profiler-src/profiler.sh status ${{SERVER_PID}}
                 - wait-for: HYPERFOIL_DONE
                 - sh: ${{WORKDIR}}/async-profiler-src/profiler.sh stop -o flamegraph -f ${{WORKDIR}}/profiling/${{CURRENT_IMPLEMENTATION}}-async.html ${{SERVER_PID}}
-            - regex: perf-top
+            - regex: ^perf-top
               then:
                 - sh: sudo perf top ${{PROFILER_ARGS}} > ${{WORKDIR}}/profiling/${{CURRENT_IMPLEMENTATION}}-perf-top.txt
                   on-signal:
                     HYPERFOIL_DONE:
                       - ctrlC:
-            - regex: broker-async-jfr
+            - regex: ^broker-async-jfr
               then:
                 - sh: ${{CONTAINER_ENGINE}} exec observability-demo-artemis mkdir -p ${{WORKDIR}}/async-profiler-src/build/
                 - sh: ${{CONTAINER_ENGINE}} cp ${{WORKDIR}}/async-profiler-src/build/libasyncProfiler.so observability-demo-artemis:${{WORKDIR}}/async-profiler-src/build/
