@@ -326,6 +326,9 @@ scripts:
         - regex: async-flame
           then:
             - script: setup-async-profiler
+        - regex: broker-async-flame
+          then:
+            - script: setup-async-profiler
 
   setup-async-profiler:
     - sh: sudo sysctl kernel.perf_event_paranoid=1
@@ -344,6 +347,8 @@ scripts:
         - wait-for: OBSERVABILITY_READY
         - sh: ps --format pid,cmd x | grep observability-legume-process | grep java | awk '{print $1}'
         - set-state: SERVER_PID
+        - sh: ps --format pid,cmd ax | grep org.apache.activemq.artemis.boot.Artemis | grep java | awk '{print $1}'
+        - set-state: BROKER_PID
         - read-state: ${{PROFILER}}
           then:
             - regex: async-jfr
@@ -364,6 +369,12 @@ scripts:
                   on-signal:
                     HYPERFOIL_DONE:
                       - ctrlC:
+            - regex: broker-async-jfr
+              then:
+                - sh: ${{WORKDIR}}/async-profiler-src/profiler.sh start -o jfr --jfrsync profile -f ${{WORKDIR}}/profiling/${{CURRENT_IMPLEMENTATION}}-broker-async.jfr ${{PROFILER_ARGS}} ${{BROKER_PID}}
+                - sh: ${{WORKDIR}}/async-profiler-src/profiler.sh status ${{BROKER_PID}}
+                - wait-for: HYPERFOIL_DONE
+                - sh: ${{WORKDIR}}/async-profiler-src/profiler.sh stop ${{BROKER_PID}} > ${{WORKDIR}}/profiling/${{CURRENT_IMPLEMENTATION}}-broker-async.txt
         - sleep: 1s # allow time for BENCHMARK_DONE to be set
 
   cleanup-profiling:
