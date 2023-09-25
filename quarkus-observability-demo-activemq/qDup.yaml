@@ -326,7 +326,7 @@ scripts:
         - regex: ^async-flame
           then:
             - script: setup-async-profiler
-        - regex: ^broker-async-flame
+        - regex: ^broker-async-jfr
           then:
             - script: setup-async-profiler
 
