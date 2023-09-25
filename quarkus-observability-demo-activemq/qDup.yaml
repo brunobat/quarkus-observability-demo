@@ -371,10 +371,14 @@ scripts:
                       - ctrlC:
             - regex: broker-async-jfr
               then:
-                - sh: ${{WORKDIR}}/async-profiler-src/profiler.sh start -o jfr --jfrsync profile -f ${{WORKDIR}}/profiling/${{CURRENT_IMPLEMENTATION}}-broker-async.jfr ${{PROFILER_ARGS}} ${{BROKER_PID}}
-                - sh: ${{WORKDIR}}/async-profiler-src/profiler.sh status ${{BROKER_PID}}
+                - sh: ${{CONTAINER_ENGINE}} exec observability-demo-artemis mkdir -p ${{WORKDIR}}/async-profiler-src/build/
+                - sh: ${{CONTAINER_ENGINE}} cp ${{WORKDIR}}/async-profiler-src/build/libasyncProfiler.so observability-demo-artemis:${{WORKDIR}}/async-profiler-src/build/
+                - sh: ${{CONTAINER_ENGINE}} cp ${{WORKDIR}}/async-profiler-src/build/fdtransfer observability-demo-artemis:${{WORKDIR}}/async-profiler-src/build/
+                - sh: sudo ${{WORKDIR}}/async-profiler-src/profiler.sh start -o jfr --jfrsync profile --fdtransfer -f ${{WORKDIR}}/${{CURRENT_IMPLEMENTATION}}-broker-async.jfr ${{PROFILER_ARGS}} ${{BROKER_PID}}
+                - sh: sudo ${{WORKDIR}}/async-profiler-src/profiler.sh status ${{BROKER_PID}}
                 - wait-for: HYPERFOIL_DONE
-                - sh: ${{WORKDIR}}/async-profiler-src/profiler.sh stop ${{BROKER_PID}} > ${{WORKDIR}}/profiling/${{CURRENT_IMPLEMENTATION}}-broker-async.txt
+                - sh: sudo ${{WORKDIR}}/async-profiler-src/profiler.sh stop ${{BROKER_PID}} > ${{WORKDIR}}/profiling/${{CURRENT_IMPLEMENTATION}}-broker-async.txt
+                - sh: ${{CONTAINER_ENGINE}} cp observability-demo-artemis:${{WORKDIR}}/${{CURRENT_IMPLEMENTATION}}-broker-async.jfr ${{WORKDIR}}/profiling/
         - sleep: 1s # allow time for BENCHMARK_DONE to be set
 
   cleanup-profiling:
