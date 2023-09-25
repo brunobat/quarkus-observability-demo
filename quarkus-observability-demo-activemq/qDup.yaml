@@ -326,9 +326,9 @@ scripts:
         - regex: ^async-flame
           then:
             - script: setup-async-profiler
-        - regex: broker-async-flame
+        - regex: ^broker-async-flame
           then:
-            - script: ^setup-async-profiler
+            - script: setup-async-profiler
 
   setup-async-profiler:
     - sh: sudo sysctl kernel.perf_event_paranoid=1
