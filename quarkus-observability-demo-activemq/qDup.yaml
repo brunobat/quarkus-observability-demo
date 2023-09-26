@@ -189,7 +189,11 @@ scripts:
     - sh:
         ${{CONTAINER_ENGINE}} run --detach --cpuset-cpus ${{JAEGER_CPUS}} --memory 32g --network host --name observability-demo-jaeger
         --env COLLECTOR_OTLP_ENABLED=true
-        jaegertracing/all-in-one:${{JAEGER_VERSION:1.41.0}}
+        --env COLLECTOR_QUEUE_SIZE=10000
+        --env SPAN_STORAGE_TYPE=badger
+        --env BADGER_EPHEMERAL=true
+        --env DOWNSAMPLING_RATIO=0.1
+        jaegertracing/all-in-one:${{JAEGER_VERSION:1.49.0}}
 
   stop-jaeger:
     - sh:
