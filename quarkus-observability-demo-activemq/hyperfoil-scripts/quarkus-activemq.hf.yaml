@@ -88,70 +88,76 @@ phases:
         usersPerSec: 2000
         duration: 6m
         startAfter: rampup
-        scenario:
-        # The only sequence in this scenario is called `test`.
-        - createLegumesScenario:
-          # Step `randomItem` randomly picks one item from the list below...
-          - randomInt: itemId <- 1 .. 99999
-          - randomUUID: itemDescription
-          - httpRequest:
-              # HTTP request will read the variable from the session and format
-              # the path for the GET request
-              POST: /legumes/
-              authority: localhost:8080
-              headers:
-                content-type: application/json
-              body: |
-                {
-                  "description":"Shows up on summer - ${itemDescription}",
-                  "name":"Courgette-${itemId}"
-                }
-              handler:
-                # We'll check that the response was successful (status 200-299)
-                status:
-                  range: 2xx
-                # When the response is fully processed we'll set variable `completed`
-                # in the session.
-                onCompletion:
-                  set: completed <- yes
-              # For demonstration purposes we will set `sync: false`.
-              # Next step is executed immediately after we fire the request, not
-              # waiting for the response.
-              # sync: false
-              # We'll wait for the `completed` var to be set in this step, though.
-        - getLegumesScenario:
-            - randomInt: pageIndex <- 1 .. 99
-            - httpRequest:
-                GET: /legumes?pageIndex=${pageIndex}
-                authority: localhost:8080
-                handler:
-                  # We'll check that the response was successful (status 200-299)
-                  status:
-                    range: 2xx
-                  # When the response is fully processed we'll set variable `completed`
-                  # in the session.
-                  onCompletion:
-                    set: completed <- yes
-                # For demonstration purposes we will set `sync: false`.
-                # Next step is executed immediately after we fire the request, not
-                # waiting for the response.
-                # sync: false
-            - awaitVar: completed
-        - getHeroesScenario:
-            - randomInt: pageIndex <- 1 .. 99
-            - httpRequest:
-                GET: /heroes?pageIndex=${pageIndex}
-                authority: localhost:8081
-                handler:
-                  # We'll check that the response was successful (status 200-299)
-                  status:
-                    range: 2xx
-                  # When the response is fully processed we'll set variable `completed`
-                  # in the session.
-                  onCompletion:
-                    set: completed <- yes
-                # For demonstration purposes we will set `sync: false`.
-                # Next step is executed immediately after we fire the request, not
-                # waiting for the response.
-                # sync: false
-            - awaitVar: completed
+        forks:
+          createFork:
+            weight: 1
+            scenario:
+            # The only sequence in this scenario is called `test`.
+            - createLegumesScenario:
+              # Step `randomItem` randomly picks one item from the list below...
+              - randomInt: itemId <- 1 .. 99999
+              - randomUUID: itemDescription
+              - httpRequest:
+                  # HTTP request will read the variable from the session and format
+                  # the path for the GET request
+                  POST: /legumes/
+                  authority: localhost:8080
+                  headers:
+                    content-type: application/json
+                  body: |
+                    {
+                      "description":"Shows up on summer - ${itemDescription}",
+                      "name":"Courgette-${itemId}"
+                    }
+                  handler:
+                    # We'll check that the response was successful (status 200-299)
+                    status:
+                      range: 2xx
+                    # When the response is fully processed we'll set variable `completed`
+                    # in the session.
+                    onCompletion:
+                      set: completed <- yes
+                  # For demonstration purposes we will set `sync: false`.
+                  # Next step is executed immediately after we fire the request, not
+                  # waiting for the response.
+                  # sync: false
+                  # We'll wait for the `completed` var to be set in this step, though.
+          gettersFork:
+            weight: 2
+            scenario:
+            - getLegumesScenario:
+                - randomInt: pageIndex <- 1 .. 99
+                - httpRequest:
+                    GET: /legumes?pageIndex=${pageIndex}
+                    authority: localhost:8080
+                    handler:
+                      # We'll check that the response was successful (status 200-299)
+                      status:
+                        range: 2xx
+                      # When the response is fully processed we'll set variable `completed`
+                      # in the session.
+                      onCompletion:
+                        set: completed <- yes
+                    # For demonstration purposes we will set `sync: false`.
+                    # Next step is executed immediately after we fire the request, not
+                    # waiting for the response.
+                    # sync: false
+                - awaitVar: completed
+            - getHeroesScenario:
+                - randomInt: pageIndex <- 1 .. 99
+                - httpRequest:
+                    GET: /heroes?pageIndex=${pageIndex}
+                    authority: localhost:8081
+                    handler:
+                      # We'll check that the response was successful (status 200-299)
+                      status:
+                        range: 2xx
+                      # When the response is fully processed we'll set variable `completed`
+                      # in the session.
+                      onCompletion:
+                        set: completed <- yes
+                    # For demonstration purposes we will set `sync: false`.
+                    # Next step is executed immediately after we fire the request, not
+                    # waiting for the response.
+                    # sync: false
+                - awaitVar: completed
