@@ -5,16 +5,16 @@ name: quarkus-activemq
 # for all HTTP requests.
 http:
   - host: http://localhost:8080
-    sharedConnections: 4000
+    sharedConnections: 5000
   - host: http://localhost:8081
-    sharedConnections: 4000
+    sharedConnections: 5000
 phases:
   - rampup:
       increasingRate:
         initialUsersPerSec: 1
-        targetUsersPerSec: 4000
+        targetUsersPerSec: 5000
         # We expect at most 1000 users being active at one moment - see below
-        maxSessions: 4000
+        maxSessions: 5000
         duration: 6m
         forks:
           createFork:
@@ -50,7 +50,7 @@ phases:
                   # waiting for the response.
                   # sync: false
           gettersFork:
-            weight: 3
+            weight: 4
             scenario:
             - getLegumesScenario:
                 - randomInt: pageIndex <- 1 .. 99
@@ -91,7 +91,7 @@ phases:
   - mainPhase:
       constantRate:
         # users will be starting the scenario every second
-        usersPerSec: 4000
+        usersPerSec: 5000
         duration: 6m
         startAfter: rampup
         forks:
@@ -129,7 +129,7 @@ phases:
                   # sync: false
                   # We'll wait for the `completed` var to be set in this step, though.
           gettersFork:
-            weight: 3
+            weight: 4
             scenario:
             - getLegumesScenario:
                 - randomInt: pageIndex <- 1 .. 99
