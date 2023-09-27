@@ -330,6 +330,9 @@ scripts:
         - regex: ^async-flame
           then:
             - script: setup-async-profiler
+        - regex: ^heroes-async-jfr
+          then:
+            - script: setup-async-profiler
         - regex: ^broker-async-jfr
           then:
             - script: setup-async-profiler
@@ -373,6 +376,14 @@ scripts:
                   on-signal:
                     HYPERFOIL_DONE:
                       - ctrlC:
+            - regex: ^heroes-async-jfr
+              then:
+                - sh: ps --format pid,cmd x | grep observability-superhero-process | grep java | awk '{print $1}'
+                - set-state: SERVER_PID
+                - sh: ${{WORKDIR}}/async-profiler-src/profiler.sh start -o jfr --jfrsync profile -f ${{WORKDIR}}/profiling/superhero-${{CURRENT_IMPLEMENTATION}}-async.jfr ${{PROFILER_ARGS}} ${{SERVER_PID}}
+                - sh: ${{WORKDIR}}/async-profiler-src/profiler.sh status ${{SERVER_PID}}
+                - wait-for: HYPERFOIL_DONE
+                - sh: ${{WORKDIR}}/async-profiler-src/profiler.sh stop ${{SERVER_PID}} > ${{WORKDIR}}/profiling/superhero-${{CURRENT_IMPLEMENTATION}}-async.txt
             - regex: ^broker-async-jfr
               then:
                 - sh: ${{CONTAINER_ENGINE}} exec observability-demo-artemis mkdir -p ${{WORKDIR}}/async-profiler-src/build/
