@@ -248,11 +248,11 @@ scripts:
         - regex: observability-off
           then:
             - sh: JAVA_OPTS="$JAVA_OPTS -Dquarkus.otel.sdk.disabled=true"
-    - read-state: ${{SERVER_MEMORY}}
+    - read-state: ${{HEROES_SERVER_MEMORY}}
       then:
-        - sh: JAVA_OPTS="$JAVA_OPTS -Xms${{SERVER_MEMORY}} -Xmx${{SERVER_MEMORY}}"
+        - sh: JAVA_OPTS="$JAVA_OPTS -Xms${{HEROES_SERVER_MEMORY}} -Xmx${{HEROES_SERVER_MEMORY}}"
     - queue-download: quarkus-superhero-${{RUN.CURRENT_IMPLEMENTATION}}.txt
-    - sh: taskset --cpu-list ${{SERVER_CPUS}} java -XX:+UseNUMA -Dobservability-superhero-process $JAVA_OPTS ${{SERVER_OPTS}} -jar quarkus-run.jar >> quarkus-superhero-${{RUN.CURRENT_IMPLEMENTATION}}.txt
+    - sh: taskset --cpu-list ${{HEROES_SERVER_CPUS}} java -XX:+UseNUMA -Dobservability-superhero-process $JAVA_OPTS ${{SERVER_OPTS}} -jar quarkus-run.jar >> quarkus-superhero-${{RUN.CURRENT_IMPLEMENTATION}}.txt
       idle-timer: 5m
       on-signal:
         HYPERFOIL_DONE:
@@ -279,11 +279,11 @@ scripts:
         - regex: observability-off
           then:
             - sh: JAVA_OPTS="$JAVA_OPTS -Dquarkus.otel.sdk.disabled=true"
-    - read-state: ${{SERVER_MEMORY}}
+    - read-state: ${{LEGUMES_SERVER_MEMORY}}
       then:
-        - sh: JAVA_OPTS="$JAVA_OPTS -Xms${{SERVER_MEMORY}} -Xmx${{SERVER_MEMORY}}"
+        - sh: JAVA_OPTS="$JAVA_OPTS -Xms${{LEGUMES_SERVER_MEMORY}} -Xmx${{LEGUMES_SERVER_MEMORY}}"
     - queue-download: quarkus-legume-${{RUN.CURRENT_IMPLEMENTATION}}.txt
-    - sh: taskset --cpu-list ${{SERVER_CPUS}} java -XX:+UseNUMA -Dobservability-legume-process $JAVA_OPTS ${{SERVER_OPTS}} -jar quarkus-run.jar | tee quarkus-legume-${{RUN.CURRENT_IMPLEMENTATION}}.txt | grep started
+    - sh: taskset --cpu-list ${{LEGUMES_SERVER_CPUS}} java -XX:+UseNUMA -Dobservability-legume-process $JAVA_OPTS ${{SERVER_OPTS}} -jar quarkus-run.jar | tee quarkus-legume-${{RUN.CURRENT_IMPLEMENTATION}}.txt | grep started
       idle-timer: 5m
       on-signal:
         HYPERFOIL_DONE:
@@ -531,8 +531,10 @@ states:
   ASYNC_PROFILER_REPO_COMMIT: v2.9
 
   # CPU and memory restrictions
-  SERVER_MEMORY:
-  SERVER_CPUS: 0-1
+  LEGUMES_SERVER_MEMORY:
+  LEGUMES_SERVER_CPUS: 0-1
+  HEROES_SERVER_MEMORY:
+  HEROES_SERVER_CPUS: 0-1
   LEGUMES_DATABASE_CPUS: 5-7
   HEROES_DATABASE_CPUS: 5-7
   HYPERFOIL_CPUS: 2-4
