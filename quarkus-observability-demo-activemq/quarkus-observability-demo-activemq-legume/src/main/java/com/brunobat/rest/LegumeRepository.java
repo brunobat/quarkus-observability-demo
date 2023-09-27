@@ -17,7 +17,7 @@ public class LegumeRepository implements PanacheRepository<Legume> {
     EntityManager manager;
 
     public Stream<Legume> listLegumes(int pageIndex) {
-        return find("SELECT h FROM Legume h").page(pageIndex, 20).stream();
+        return find("SELECT h FROM Legume h").page(pageIndex, 16).stream();
     }
 
     public void remove(final LegumeItem legume) {
