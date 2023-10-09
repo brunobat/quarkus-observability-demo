@@ -20,6 +20,29 @@ enum JmsAttributesGetter implements MessagingAttributesGetter<Message, Message> 
 
     @Nullable
     @Override
+    public String getDestinationKind(Message message) {
+        Destination jmsDestination = null;
+        try {
+            jmsDestination = message.getJMSDestination();
+        } catch (Exception ignored) {
+            // Ignore
+        }
+
+        if (jmsDestination == null) {
+            return null;
+        }
+
+        if (jmsDestination instanceof Queue) {
+            return "queue";
+        }
+        if (jmsDestination instanceof Topic) {
+            return "topic";
+        }
+        return null;
+    }
+
+    @Nullable
+    @Override
     public String getDestination(Message message) {
         Destination jmsDestination = null;
         try {

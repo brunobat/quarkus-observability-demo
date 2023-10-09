@@ -14,7 +14,7 @@ import jakarta.jms.JMSException;
 import jakarta.jms.Message;
 import jakarta.transaction.Transactional;
 
-import static io.opentelemetry.instrumentation.api.instrumenter.messaging.MessageOperation.PUBLISH;
+import static io.opentelemetry.instrumentation.api.instrumenter.messaging.MessageOperation.SEND;
 import static io.quarkus.opentelemetry.runtime.config.build.OTelBuildConfig.INSTRUMENTATION_NAME;
 
 @ApplicationScoped
@@ -35,7 +35,7 @@ public class MessageSender {
                         //How to obtain data from the JMS message
                         JmsAttributesGetter.INSTANCE,
                         // We are sending data away
-                        PUBLISH));
+                        SEND));
 
         Instrumenter<Message, Message> messageInstrumenter = serverInstrumenterBuilder
                 // extracts attribute data from the message and
@@ -44,7 +44,7 @@ public class MessageSender {
                         //How to obtain data from the JMS message
                         JmsAttributesGetter.INSTANCE,
                         // We are sending data away
-                        PUBLISH))
+                        SEND))
                 .buildProducerInstrumenter((message, key, value) -> {
                     // Teach the instrumenter how to set attributes on the message.
                     // For context propagation using message metadata
