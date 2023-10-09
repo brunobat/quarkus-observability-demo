@@ -6,16 +6,15 @@ import io.opentelemetry.instrumentation.api.instrumenter.Instrumenter;
 import io.opentelemetry.instrumentation.api.instrumenter.InstrumenterBuilder;
 import io.opentelemetry.instrumentation.api.instrumenter.messaging.MessagingAttributesExtractor;
 import io.opentelemetry.instrumentation.api.instrumenter.messaging.MessagingSpanNameExtractor;
-import lombok.extern.slf4j.Slf4j;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.jms.ConnectionFactory;
 import jakarta.jms.JMSContext;
 import jakarta.jms.JMSException;
 import jakarta.jms.Message;
+import jakarta.transaction.Transactional;
 
-import static io.opentelemetry.instrumentation.api.instrumenter.messaging.MessageOperation.SEND;
+import static io.opentelemetry.instrumentation.api.instrumenter.messaging.MessageOperation.PUBLISH;
 import static io.quarkus.opentelemetry.runtime.config.build.OTelBuildConfig.INSTRUMENTATION_NAME;
 
 @ApplicationScoped
@@ -36,7 +35,7 @@ public class MessageSender {
                         //How to obtain data from the JMS message
                         JmsAttributesGetter.INSTANCE,
                         // We are sending data away
-                        SEND));
+                        PUBLISH));
 
         Instrumenter<Message, Message> messageInstrumenter = serverInstrumenterBuilder
                 // extracts attribute data from the message and
@@ -45,7 +44,7 @@ public class MessageSender {
                         //How to obtain data from the JMS message
                         JmsAttributesGetter.INSTANCE,
                         // We are sending data away
-                        SEND))
+                        PUBLISH))
                 .buildProducerInstrumenter((message, key, value) -> {
                     // Teach the instrumenter how to set attributes on the message.
                     // For context propagation using message metadata
@@ -61,6 +60,7 @@ public class MessageSender {
         return messageInstrumenter;
     }
 
+    @Transactional(Transactional.TxType.NOT_SUPPORTED)
     public void send(String str) {
         Context parentOtelContext = Context.current();
         Instrumenter<Message, Message> producerInstrumenter = getProducerInstrumenter(telemetry);
@@ -72,7 +72,7 @@ public class MessageSender {
             jmsContext.createProducer()
                     .send(jmsContext.createQueue("heroes"), msg);
 //            log.info("sent message: " + str);
-            producerInstrumenter.end(spanContext,msg,null, null);
+            producerInstrumenter.end(spanContext, msg, null, null);
         }
     }
 }

@@ -15,7 +15,7 @@ public class HeroRepository implements PanacheRepository<Hero> {
     EntityManager manager;
 
     public List<Hero> listHeroes(int pageIndex) {
-        return find("SELECT h FROM Hero h").page(pageIndex, 20).list();
+        return find("SELECT h FROM Hero h").page(pageIndex, 16).list();
     }
 
     public List<Hero> findByOriginalName(final String originalName) {
