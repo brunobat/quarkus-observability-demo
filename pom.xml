@@ -26,7 +26,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-        <quarkus.platform.version>3.3.1</quarkus.platform.version>
+        <quarkus.platform.version>3.2.5.Final</quarkus.platform.version>
         <quarkus-micrometer-registry-otlp.version>3.0.1</quarkus-micrometer-registry-otlp.version>
         <quarkus-artemis-bom.version>3.0.0</quarkus-artemis-bom.version>
         <quarkus-pooled-jms.version>2.2.0</quarkus-pooled-jms.version>
