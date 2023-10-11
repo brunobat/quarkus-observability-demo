@@ -2,13 +2,14 @@ package com.brunobat.rest.resource;
 
 import com.brunobat.rest.data.LegumeItem;
 import com.brunobat.rest.data.LegumeNew;
+import io.smallrye.mutiny.Uni;
+import jakarta.ws.rs.PathParam;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
-import org.jboss.resteasy.annotations.jaxrs.PathParam;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -51,7 +52,7 @@ public interface LegumeApi {
             responseCode = "500",
             description = "Internal Server Error"
     )
-    Response provision();
+    Uni<Response> provision();
 
     @POST
     @Operation(
@@ -87,7 +88,7 @@ public interface LegumeApi {
             responseCode = "500",
             description = "Internal Server Error"
     )
-    public Response add(@Valid final LegumeNew legume);
+    public Uni<Response> add(@Valid final LegumeNew legume);
 
     @DELETE
     @Path("{id}")
@@ -109,7 +110,7 @@ public interface LegumeApi {
             responseCode = "500",
             description = "Internal Server Error"
     )
-    Response delete(
+    Uni<Response> delete(
             @Parameter(name = "id",
                     description = "Id of the Legume to delete",
                     required = true,
@@ -137,7 +138,7 @@ public interface LegumeApi {
             description = "Internal Server Error"
     )
     @GET
-    List<LegumeItem> list(
+    Uni<List<LegumeItem>> list(
         @Parameter(name = "pageIndex", required = false)
         @QueryParam("pageIndex")
         final int pageIndex);

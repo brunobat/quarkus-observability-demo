@@ -16,11 +16,14 @@ public class LegumeResourceTest {
     public void testProvisionAndList() {
         given()
                 .header("Content-Type", "application/json; encoding=utf8; charset=utf8")
+                .header("Accept", "application/json; encoding=utf8; charset=utf8")
                 .when().post("/legumes/init")
                 .then()
                 .statusCode(201);
 
         given()
+                .header("Content-Type", "application/json; encoding=utf8; charset=utf8")
+                .header("Accept", "application/json; encoding=utf8; charset=utf8")
                 .when().get("/legumes")
                 .then()
                 .log().all()
@@ -28,7 +31,5 @@ public class LegumeResourceTest {
                 .body("$.size()", is(2),
                         "name", containsInAnyOrder("Carrot", "Zucchini"),
                         "description", containsInAnyOrder("Root vegetable, usually orange", "Summer squash"));
-
-
     }
 }
