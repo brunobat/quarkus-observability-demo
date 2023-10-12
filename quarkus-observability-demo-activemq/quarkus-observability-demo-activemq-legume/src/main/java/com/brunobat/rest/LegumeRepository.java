@@ -1,30 +1,29 @@
 package com.brunobat.rest;
 
-import com.brunobat.rest.data.LegumeItem;
 import com.brunobat.rest.model.Legume;
-import io.quarkus.hibernate.orm.panache.PanacheRepository;
-
+import io.quarkus.hibernate.reactive.panache.PanacheRepository;
+import io.quarkus.hibernate.reactive.panache.common.WithSession;
+import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
+
 import java.util.List;
-import java.util.stream.Stream;
 
 @ApplicationScoped
 public class LegumeRepository implements PanacheRepository<Legume> {
 
-    @Inject
-    EntityManager manager;
-
-    public Stream<Legume> listLegumes(int pageIndex) {
-        return find("SELECT h FROM Legume h").page(pageIndex, 16).stream();
+    @WithSession
+    public Uni<List<Legume>> listLegumes(int pageIndex) {
+        return find("SELECT h FROM Legume h").page(pageIndex, 16).list();
     }
 
-    public void remove(final LegumeItem legume) {
-        manager.remove(legume);
+    public void removeLegume(final String legumeId) {
+        find("SELECT h FROM Legume h WHERE h.id=?1", legumeId).firstResult().onItem().transform(legume -> {
+            delete(legume);
+            return legume;
+        });
     }
 
-    public Legume merge(final Legume legumeToAdd) {
-        return  manager.merge(legumeToAdd);
+    public Uni<Legume> createLegume(final Legume legumeToAdd) {
+        return persist(legumeToAdd);
     }
 }
