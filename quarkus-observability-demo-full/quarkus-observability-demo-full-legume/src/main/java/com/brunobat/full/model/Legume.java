@@ -30,5 +30,4 @@ public class Legume {
 
     @Column(length = 2000)
     private String description;
-
 }

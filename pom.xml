@@ -17,23 +17,25 @@
         <module>quarkus-observability-demo-micrometer</module>
         <module>quarkus-observability-demo-opentracing-shim</module>
         <module>quarkus-observability-demo-full</module>
+        <module>quarkus-observability-quickstart</module>
     </modules>
 
     <properties>
-        <compiler-plugin.version>3.11.0</compiler-plugin.version>
+        <compiler-plugin.version>3.12.1</compiler-plugin.version>
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-        <quarkus.platform.version>3.3.1</quarkus.platform.version>
-        <quarkus-micrometer-registry-otlp.version>3.0.1</quarkus-micrometer-registry-otlp.version>
+<!--        <quarkus.platform.version>3.7.4</quarkus.platform.version>-->
+        <quarkus.platform.version>999-SNAPSHOT</quarkus.platform.version>
+        <quarkus-micrometer-registry-otlp.version>3.2.4</quarkus-micrometer-registry-otlp.version>
         <quarkus-artemis-bom.version>3.0.0</quarkus-artemis-bom.version>
         <quarkus-pooled-jms.version>2.2.0</quarkus-pooled-jms.version>
-        <lombok.version>1.18.26</lombok.version>
-        <rest-assured.version>5.3.0</rest-assured.version>
+        <lombok.version>1.18.30</lombok.version>
+        <rest-assured.version>5.4.0</rest-assured.version>
         <skipITs>true</skipITs>
-        <surefire-plugin.version>3.0.0</surefire-plugin.version>
+        <surefire-plugin.version>3.2.5</surefire-plugin.version>
     </properties>
 
     <build>

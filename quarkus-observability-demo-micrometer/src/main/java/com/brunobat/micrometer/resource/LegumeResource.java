@@ -4,6 +4,7 @@ package com.brunobat.micrometer.resource;
 import com.brunobat.micrometer.client.FooClient;
 import com.brunobat.micrometer.data.LegumeItem;
 import com.brunobat.micrometer.data.LegumeNew;
+import com.brunobat.micrometer.metrics.MetricsService;
 import com.brunobat.micrometer.model.Legume;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
@@ -33,10 +34,14 @@ public class LegumeResource implements LegumeApi{
     EntityManager manager;
 
     @Inject
+    MetricsService meterService;
+
+    @Inject
     Config config;
 
     @Transactional
     public Response provision() {
+        meterService.incrementRequestStart();
         final LegumeNew carrot = LegumeNew.builder()
                 .name("Carrot")
                 .description("Root vegetable, usually orange")
@@ -45,6 +50,7 @@ public class LegumeResource implements LegumeApi{
                 .name("Zucchini")
                 .description("Summer squash")
                 .build();
+        meterService.incrementRequestDone("200");
         return Response.status(CREATED).entity(asList(
                 addLegume(carrot),
                 addLegume(zucchini))).build();
